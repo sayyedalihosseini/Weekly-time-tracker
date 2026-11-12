@@ -45,13 +45,23 @@ textarea{min-height:110px;resize:vertical}
 .days .on{background:var(--ac);color:var(--on);box-shadow:0 3px 0 var(--acd)}
 .bar{height:10px;border-radius:9px;background:var(--sf2);overflow:hidden}
 .bar span{display:block;height:100%;background:var(--ac);border-radius:9px}
-.slot{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:2px solid transparent;border-radius:18px;margin:6px 0;padding:11px 14px;background:var(--sf);color:var(--tx);font:inherit;cursor:pointer}
-.slot.has{background:color-mix(in srgb,var(--c) 20%,var(--sf));border-color:color-mix(in srgb,var(--c) 45%,transparent)}
-.slot.hr .t{font-weight:700}
-.slot .t{width:46px;color:var(--mu);font-size:14px;flex:none}
-.slot .n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px}
-.slot .n em{display:block;font-style:normal;color:var(--mu);font-size:12px;overflow:hidden;text-overflow:ellipsis}
-.slot.cur{border-color:var(--ac);border-bottom-width:5px}
+.slot{display:grid;grid-template-columns:46px 120px minmax(0,1fr);align-items:center;gap:8px;border:2px solid transparent;border-radius:16px;margin:3px 0;padding:6px 12px;background:var(--sf)}
+.slot.has{background:color-mix(in srgb,var(--c) 20%,var(--sf));border-color:color-mix(in srgb,var(--c) 40%,transparent)}
+.slot.cur{border-color:var(--ac)}
+.slot .t{color:var(--mu);font-size:13px}.slot .t.b{font-weight:700;color:var(--tx)}
+.cb{display:flex;align-items:center;gap:6px;border:0;background:none;color:var(--tx);font:500 14px Lexend;text-align:left;padding:0;cursor:pointer;min-width:0}
+.cb::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c,transparent);flex:none}
+.cn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ph{color:var(--mu)}
+.slot .nt{width:100%;margin:0;padding:6px 10px;border:1.5px solid color-mix(in srgb,var(--tx) 12%,transparent);border-radius:12px;background:color-mix(in srgb,var(--bg) 50%,transparent);color:var(--tx);font:400 14px Lexend}
+.slot .nt:focus{outline:0;border-color:var(--ac)}
+.hour{margin:8px 0}
+.narrow{max-width:560px;margin:0 auto}
+.fab,.pt{display:none}
+.fab{position:fixed;right:16px;bottom:calc(88px + env(safe-area-inset-bottom));z-index:4;border:0;border-radius:999px;background:var(--ac);color:var(--on);font:700 14px Lexend;padding:13px 18px;box-shadow:0 4px 0 var(--acd),0 8px 20px #0005;cursor:pointer}
+#sheet .card{background:var(--bg)}
+.plan textarea{overflow:hidden;min-height:90px}
+@media(min-width:760px){#app{max-width:1120px}.dgrid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}.dgrid main{grid-column:1;grid-row:1}.dgrid aside{grid-column:2;grid-row:1;position:sticky;top:12px;max-height:calc(100vh - 110px);overflow:auto}}
+@media(max-width:759px){.an{display:none}.pt{display:inline-block}.plan.shut .pb,.plan.shut .pp{display:none}.hour{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:6px 0}.slot{display:flex;flex-direction:column;align-items:stretch;gap:3px;padding:6px;margin:0;border-radius:12px}.slot .t{font-size:10px}.cb{font-size:11px;gap:4px}.slot .nt{font-size:11px;padding:4px 5px;border-radius:8px}.fab{display:block}}
 .row{display:flex;align-items:center;gap:10px;padding:8px 0}
 .dot{width:12px;height:12px;border-radius:50%;flex:none}
 .grow{flex:1;min-width:0}
@@ -75,8 +85,8 @@ textarea{min-height:110px;resize:vertical}
 .seg{display:flex;gap:6px;background:var(--bg);padding:5px;border-radius:999px}
 .seg button{flex:1;border:0;border-radius:999px;padding:10px 0;background:transparent;color:var(--mu);font:500 14px Lexend;cursor:pointer}
 .seg .on{background:var(--ac);color:var(--on);box-shadow:0 3px 0 var(--acd)}
-.sws{display:flex;gap:10px;justify-content:space-between;margin:16px 4px}
-.sw{width:40px;height:40px;border-radius:50%;border:3px solid transparent;cursor:pointer;outline:0}
+.sws{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin:16px 4px}
+.sw{width:34px;height:34px;border-radius:50%;border:3px solid transparent;cursor:pointer;outline:0}
 .sw.on{border-color:var(--tx)}
 .tg{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;border:0;background:transparent;color:var(--tx);font:500 15px Lexend;padding:10px 0;text-align:left;cursor:pointer}
 .tg small{display:block;color:var(--mu);font-size:12px;font-weight:400}
@@ -115,7 +125,7 @@ let cats=ls('cats')||DEF.map(([n,xp,f])=>({n,xp,f})), week=monday(), day=todayId
 let data={s:{},p:{}}, user=null, offline=!!ls('offline'), sel=null, selCat=null, timer;
 
 // ---- theme ----
-const ACC=[['Blue','#2383e2'],['Orange','#d9731f'],['Green','#1f9d6b'],['Purple','#8b5cf6'],['Pink','#e0457b'],['Red','#e5484d']];
+const ACC=[['Blue','#2383e2'],['Orange','#d9731f'],['Green','#1f9d6b'],['Purple','#8b5cf6'],['Pink','#e0457b'],['Red','#e5484d'],['Grey','#7c828d']];
 let th=Object.assign({mode:'system',acc:0,tint:true,amo:false},ls('theme'));
 const hx=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16));
 const mix=(a,b,t)=>'#'+hx(a).map((v,i)=>Math.round(v*t+hx(b)[i]*(1-t)).toString(16).padStart(2,'0')).join('');
@@ -166,15 +176,21 @@ const head=(t,sub,nav)=>`<header><div><h1>${t}</h1><div class="mut" style="margi
 const chip=(l,v,i)=>`<div class="chip"><small>${l}</small><b>${v}</b><i>${i}</i></div>`;
 const range=()=>fmt(week)+' – '+fmt(addDays(week,6));
 
+let planShut=false;
+const autoh=t=>{t.style.height='auto';if(t.scrollHeight)t.style.height=t.scrollHeight+'px'};
+addEventListener('resize',()=>document.querySelectorAll('textarea[data-plan]').forEach(autoh));
 function vToday(){const s=dayStats(day),pct=Math.round(s.n/64*100),cur=week==monday()&&day==todayIdx()?curSlot():-1;
  let h=head('Today',DN[day]+' '+fmt(addDays(week,day))+' · week of '+fmt(week),1);
  h+=`<div class="chips">${chip('XP today',s.xp,'⚡')}${chip('Focus',s.foc.toFixed(1)+' h','🎯')}</div>`;
  h+=`<div class="days">${DN.map((n,i)=>`<button class="${i==day?'on':''}" data-act="day" data-i="${i}">${n}</button>`).join('')}</div>`;
  h+=`<div class="bar"><span style="width:${pct}%"></span></div><p class="mut">${s.n}/64 slots logged, ${pct}%. ${verdict(s.xp)}</p>`;
- h+=`<div class="card"><div class="row"><h3 class="grow" style="margin:0">📋 Plan for today</h3><button class="pill" data-act="paste">Paste</button></div><textarea data-plan placeholder="Paste or write your plan for ${DN[day]}…">${esc(data.p[day]||'')}</textarea></div>`;
- for(let i=0;i<64;i++){const v=data.s[day+'-'+i],c=v&&cats[v[0]];
-  h+=`<button class="slot ${c?'has':''} ${i%4==3?'hr':''} ${i==cur?'cur':''}" data-act="slot" data-i="${i}" ${c?`style="--c:${COL[v[0]]}"`:''}><span class="t">${tm(i)}</span><span class="n">${c?esc(c.n)+(v[1]?`<em>${esc(v[1])}</em>`:''):'<span style="color:var(--mu)">Tap to log</span>'}</span></button>`}
- h+=`<button class="btn" data-act="exp">📤 Export day summary</button>`;
+ let L='';
+ for(let g=0;g<16;g++){L+='<div class="hour">';
+  for(let i=g*4;i<g*4+4;i++){const v=data.s[day+'-'+i],c=v&&cats[v[0]];
+   L+=`<div class="slot ${c?'has':''} ${i==cur?'cur':''}" ${c?`style="--c:${COL[v[0]]}"`:''}><span class="t ${i%4==3?'b':''}">${tm(i)}</span><button class="cb" data-act="slot" data-i="${i}"><span class="cn ${c?'':'ph'}">${c?esc(c.n):'Category'}</span></button><input class="nt" type="text" maxlength="80" data-n="${i}" placeholder="Note" value="${v?esc(v[1]||''):''}"></div>`}
+  L+='</div>'}
+ const plan=`<section class="card plan ${planShut?'shut':''}"><div class="row"><h3 class="grow" style="margin:0">📋 Plan for today</h3><button class="pill pp" data-act="paste">Paste</button><button class="pill pt" data-act="pt">${planShut?'Show':'Hide'}</button></div><div class="pb"><textarea data-plan placeholder="Paste or write your plan for ${DN[day]}…">${esc(data.p[day]||'')}</textarea></div></section>`;
+ h+=`<div class="dgrid"><aside>${plan}<div class="an">${charts()}</div></aside><main>${L}<button class="btn" data-act="exp">📤 Export day summary</button></main></div><button class="fab" data-act="an">📈 Day analysis</button>`;
  return h}
 
 function vWeek(){const W=weekStats(),lvl=Math.floor(W.t.xp/500)+1,into=((W.t.xp%500)+500)%500;
@@ -186,6 +202,8 @@ function vWeek(){const W=weekStats(),lvl=Math.floor(W.t.xp/500)+1,into=((W.t.xp%
  h+=`<div class="card"><div class="bar"><span style="width:${into/5}%"></span></div><p class="mut" style="margin-bottom:0">${500-into} XP to level ${lvl+1}</p></div>`;
  h+=`<div class="card"><div class="row"><span class="grow">Week logged</span><b>${W.pct}%</b></div><div class="bar"><span style="width:${W.pct}%"></span></div><p class="mut" style="margin-bottom:0">${st}. Best day: ${W.t.xp?DN[bd]+' ('+W.days[bd].xp+' XP)':'none yet'}. Time leak: ${W.t.waste.toFixed(1)} h (${lt}%).</p></div>`;
  h+=`<div class="card"><h3>Day by day</h3>${W.days.map((s,i)=>`<div class="row"><span style="width:36px">${DN[i]}</span><div class="grow bar"><span style="width:${Math.round(s.n/64*100)}%"></span></div><span style="width:70px;text-align:right;font-size:14px">${s.xp} XP ${s.n>=48?'✓':''}</span></div>`).join('')}</div>`;
+ h+=`<div class="card"><h3>🥧 Week: where the time went</h3>${pie(W.t.h)}</div>`;
+ h+=`<div class="card"><h3>📚 Daily mix</h3>${W.days.map((s,i)=>`<div class="row"><span style="width:36px">${DN[i]}</span><div class="grow bar" style="display:flex">${s.h.map((v,k)=>v?`<span style="width:${v/16*100}%;background:${COL[k]};border-radius:0"></span>`:'').join('')}</div><span style="width:44px;text-align:right;font-size:14px">${(s.n/4).toFixed(1)}h</span></div>`).join('')}</div>`;
  const mx=Math.max(.25,...W.t.h);
  h+=`<div class="card"><h3>Hours by category</h3>${cats.map((c,i)=>W.t.h[i]?`<div class="row"><span class="dot" style="background:${COL[i]}"></span><span style="width:112px;font-size:14px">${esc(c.n)}</span><div class="grow bar"><span style="width:${W.t.h[i]/mx*100}%;background:${COL[i]}"></span></div><span style="width:44px;text-align:right;font-size:14px">${W.t.h[i].toFixed(1)}</span></div>`:'').join('')||'<p class="mut">Nothing logged yet.</p>'}</div>`;
  let m='';for(let i=0;i<64;i++)for(let d=0;d<7;d++){const v=data.s[d+'-'+i];m+=v&&cats[v[0]]?`<u style="background:${COL[v[0]]}"></u>`:'<u></u>'}
@@ -200,32 +218,50 @@ function vSetup(){let h=head('Setup','Appearance, categories, account')+vTheme()
 function vAuth(){return `<h1 style="margin-top:40px">Time Log</h1><p class="mut">Sign in to sync your weeks across devices.</p><div class="card"><input id="em" type="email" placeholder="Email" autocomplete="email"><input id="pw" type="password" placeholder="Password" autocomplete="current-password"><div class="err" id="msg"></div><button class="btn" data-act="in">Sign in</button><button class="btn g" data-act="up">Create account</button></div><button class="btn g" data-act="off">Use without account</button>`}
 
 function render(){
- if(sb&&!user&&!offline){$('#app').innerHTML=vAuth();return}
+ if(sb&&!user&&!offline){$('#app').innerHTML='<div class="narrow">'+vAuth()+'</div>';return}
  const y=scrollY;
- $('#app').innerHTML=({today:vToday,week:vWeek,setup:vSetup})[tab]()+`<nav class="tabs">${['today','week','setup'].map(t=>`<button class="${t==tab?'on':''}" data-act="tab" data-t="${t}">${ICON[t]}${t[0].toUpperCase()+t.slice(1)}</button>`).join('')}</nav>`;
+ $('#app').innerHTML=(b=>tab=='today'?b:`<div class="narrow">${b}</div>`)(({today:vToday,week:vWeek,setup:vSetup})[tab]())+`<nav class="tabs">${['today','week','setup'].map(t=>`<button class="${t==tab?'on':''}" data-act="tab" data-t="${t}">${ICON[t]}${t[0].toUpperCase()+t.slice(1)}</button>`).join('')}</nav>`;
+ document.querySelectorAll('textarea[data-plan]').forEach(autoh);
  scrollTo(0,y)}
 
 let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),2200)}
 const EM=['🧠','📚','💼','👥','🗂️','🏃','💬','🍽️','😴','🎮','🚌','🗑️'];
 const hm=m=>String(m/60|0).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
 const dur=h=>{const m=Math.round(h*60),a=m/60|0,b=m%60;return (a?a+' h':'')+(a&&b?' ':'')+(b?b+' min':'')||'0 min'};
-function summary(){const s=dayStats(day);if(!s.n)return '';
- const pct=Math.round(s.n/64*100),dt=new Date(addDays(week,day)+'T00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
- const bl=[];let run=0,rs=0,fb=0,fs=0;
+function info(){const s=dayStats(day);if(!s.n)return null;
+ const pct=Math.round(s.n/64*100),bl=[];let run=0,rs=0,fb=0,fs=0;
  for(let i=0;i<64;i++){const v=data.s[day+'-'+i],c=v&&cats[v[0]];
   if(!c){run=0;continue}
   const p=bl[bl.length-1];if(p&&p.e==i-1&&p.c==v[0]&&p.t==v[1])p.e=i;else bl.push({s:i,e:i,c:v[0],t:v[1]});
   if(c.f){if(!run)rs=i;run++;if(run>fb){fb=run;fs=rs}}else run=0}
  const cl=cats.map((c,i)=>[i,s.h[i]]).filter(x=>x[1]).sort((a,b)=>b[1]-a[1]),top=cl[0][0];
- let o=`📅 ${dt}\n\n📊 Overview\n⚡ ${s.xp} XP (${verdict(s.xp)})\n🎯 Focus: ${dur(s.foc)}\n🗑️ Wasted: ${dur(s.waste)}\n📝 Logged: ${s.n}/64 slots (${pct}%)\n\n`;
- const pl=(data.p[day]||'').trim();if(pl)o+=`📋 Plan\n${pl}\n\n`;
- o+=`⏱️ Time by category\n${cl.map(([i,h])=>`${EM[i]||'🔹'} ${cats[i].n}: ${dur(h)} (${Math.round(h*4/s.n*100)}%)`).join('\n')}\n\n`;
- o+=`🗒️ Timeline\n${bl.map(b=>`${hm(480+15*b.s)}–${hm(495+15*b.e)} ${EM[b.c]||'🔹'} ${cats[b.c].n}${b.t?': '+b.t:''}`).join('\n')}\n\n`;
  const a=[`${EM[top]||'🔹'} Most time went to ${cats[top].n} (${dur(s.h[top])}).`,
   fb?`🎯 Longest focus block: ${dur(fb/4)} (${hm(480+15*fs)}–${hm(495+15*(fs+fb-1))}).`:'🎯 No focus block today.',
   s.waste?`⚠️ Time leak: ${dur(s.waste)} (${Math.round(s.waste*4/s.n*100)}% of logged time).`:'✅ No wasted time.'];
  if(pct<75)a.push(`📝 Only ${pct}% logged, so this picture is incomplete.`);
  a.push(s.waste>=1?'💡 Tomorrow: cut the time leak first.':s.foc<3?'💡 Tomorrow: add one more focus block.':'💡 Tomorrow: keep this rhythm.');
+ return{s,pct,bl,cl,a}}
+function pie(h){const T=h.reduce((x,y)=>x+y,0);if(!T)return '<p class="mut">No data yet.</p>';
+ const R=92,r=54,C=100,n=h.filter(v=>v).length,P=(q,t)=>(C+q*Math.cos(t)).toFixed(2)+' '+(C+q*Math.sin(t)).toFixed(2);
+ let a=-Math.PI/2,o='';
+ h.forEach((v,i)=>{if(!v)return;const sp=v/T*2*Math.PI,a0=a;a+=sp;
+  if(n==1){o+=`<circle cx="${C}" cy="${C}" r="${(R+r)/2}" fill="none" stroke="${COL[i]}" stroke-width="${R-r}"/>`;return}
+  const p=Math.max(.5,Math.min(5,sp*28)),g=5,Ro=R-p,Ri=r+p,d1=(p+g/2)/Ro,d2=(p+g/2)/Ri;
+  if(a0+d1>=a-d1)return;
+  const big=(a-d1)-(a0+d1)>Math.PI?1:0;
+  o+=`<path d="M${P(Ro,a0+d1)}A${Ro} ${Ro} 0 ${big} 1 ${P(Ro,a-d1)}L${P(Ri,a-d2)}A${Ri} ${Ri} 0 ${big} 0 ${P(Ri,a0+d2)}Z" fill="${COL[i]}" stroke="${COL[i]}" stroke-width="${2*p}" stroke-linejoin="round"/>`});
+ return `<svg viewBox="0 0 200 200" style="width:100%;max-width:260px;display:block;margin:0 auto">${o}<text x="100" y="98" text-anchor="middle" font-size="26" font-weight="700" fill="var(--tx)">${T.toFixed(1)}h</text><text x="100" y="118" text-anchor="middle" font-size="11" fill="var(--mu)">logged</text></svg>`}
+function charts(){const I=info();if(!I)return '<div class="card"><p class="mut" style="margin:0">Nothing logged yet.</p></div>';
+ const{s,cl,a}=I,mx=Math.max(...s.h);
+ return `<div class="card"><h3>🥧 Where the time went</h3>${pie(s.h)}<div style="margin-top:10px">${cl.map(([i,h])=>`<div class="row" style="padding:4px 0"><span class="dot" style="background:${COL[i]}"></span><span class="grow" style="font-size:14px">${esc(cats[i].n)}</span><span style="font-size:14px">${dur(h)} · ${Math.round(h*4/s.n*100)}%</span></div>`).join('')}</div></div>
+<div class="card"><h3>📊 Hours per category</h3>${cl.map(([i,h])=>`<div class="row"><span style="width:104px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cats[i].n)}</span><div class="grow bar"><span style="width:${h/mx*100}%;background:${COL[i]}"></span></div><span style="width:38px;text-align:right;font-size:13px">${h.toFixed(1)}</span></div>`).join('')}</div>
+<div class="card"><h3>🔎 Analysis</h3>${a.map(x=>`<p style="margin:6px 0;font-size:14px">${x}</p>`).join('')}<p class="mut" style="margin:10px 0 0">${s.xp} XP: ${verdict(s.xp)}</p></div>`}
+function summary(){const I=info();if(!I)return '';const{s,pct,bl,cl,a}=I;
+ const dt=new Date(addDays(week,day)+'T00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+ let o=`📅 ${dt}\n\n📊 Overview\n⚡ ${s.xp} XP (${verdict(s.xp)})\n🎯 Focus: ${dur(s.foc)}\n🗑️ Wasted: ${dur(s.waste)}\n📝 Logged: ${s.n}/64 slots (${pct}%)\n\n`;
+ const pl=(data.p[day]||'').trim();if(pl)o+=`📋 Plan\n${pl}\n\n`;
+ o+=`⏱️ Time by category\n${cl.map(([i,h])=>`${EM[i]||'🔹'} ${cats[i].n}: ${dur(h)} (${Math.round(h*4/s.n*100)}%)`).join('\n')}\n\n`;
+ o+=`🗒️ Timeline\n${bl.map(b=>`${hm(480+15*b.s)}–${hm(495+15*b.e)} ${EM[b.c]||'🔹'} ${cats[b.c].n}${b.t?': '+b.t:''}`).join('\n')}\n\n`;
  return o+`🔎 Quick analysis\n${a.join('\n')}`}
 function exportDay(){const t=summary();if(!t)return toast('Nothing logged for this day yet');
  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Summary copied'),()=>{
@@ -257,11 +293,14 @@ document.addEventListener('click',async e=>{
  else if(a=='out'){await sb.auth.signOut()}
  else if(a=='mode'||a=='acc'||a=='tint'||a=='amo'){if(a=='mode')th.mode=b.dataset.m;else if(a=='acc')th.acc=i;else if(a=='tint')th.tint=!th.tint;else th.amo=!th.amo;ls('theme',th);applyTheme();render()}
  else if(a=='exp')exportDay();
+ else if(a=='pt'){planShut=!planShut;render()}
+ else if(a=='an'){$('#sheet').innerHTML=`<div><div class="row"><h3 class="grow" style="margin:0">📈 Day analysis</h3><button class="pill" data-act="close">Close</button></div>${charts()}</div>`;$('#sheet').classList.add('open')}
  else if(a=='close')closeSheet();
- else if(a=='paste'){try{const t=await navigator.clipboard.readText();if(t){const ta=$('[data-plan]');ta.value=ta.value?ta.value+'\n'+t:t;data.p[day]=ta.value;save()}}catch(x){toast('Paste blocked. Long-press the box and paste.')}}
+ else if(a=='paste'){try{const t=await navigator.clipboard.readText();if(t){const ta=$('[data-plan]');ta.value=ta.value?ta.value+'\n'+t:t;data.p[day]=ta.value;autoh(ta);save()}}catch(x){toast('Paste blocked. Long-press the box and paste.')}}
 });
 document.addEventListener('input',e=>{const t=e.target;
- if(t.dataset.plan!==undefined){data.p[day]=t.value;save()}
+ if(t.dataset.plan!==undefined){data.p[day]=t.value;autoh(t);save()}
+ else if(t.dataset.n!==undefined){const k=day+'-'+t.dataset.n,v=data.s[k];if(v)v[1]=t.value;else if(t.value)data.s[k]=[null,t.value];if(v&&v[0]===null&&!t.value)delete data.s[k];save()}
  else if(t.dataset.ci!==undefined){const c=cats[+t.dataset.ci],f=t.dataset.f;c[f]=f=='n'?t.value:f=='xp'?+t.value||0:t.checked?1:0;saveCats()}});
 
 (async()=>{
