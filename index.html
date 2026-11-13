@@ -61,7 +61,7 @@ textarea{min-height:110px;resize:vertical}
 #sheet .card{background:var(--bg)}
 .plan textarea{overflow:hidden;min-height:90px}
 @media(min-width:760px){#app{max-width:1120px}.dgrid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}.dgrid main{grid-column:1;grid-row:1}.dgrid aside{grid-column:2;grid-row:1;position:sticky;top:12px;max-height:calc(100vh - 110px);overflow:auto}}
-@media(max-width:759px){.an{display:none}.pt{display:inline-block}.plan.shut .pb,.plan.shut .pp{display:none}.hour{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:6px 0}.slot{display:flex;flex-direction:column;align-items:stretch;gap:3px;padding:6px;margin:0;border-radius:12px}.slot .t{font-size:10px}.cb{font-size:11px;gap:4px}.slot .nt{font-size:11px;padding:4px 5px;border-radius:8px}.fab{display:block}}
+@media(max-width:759px){.an{display:none}.pt{display:inline-block}.plan.shut .pb,.plan.shut .pp{display:none}.hour{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:6px 0}.slot{display:flex;flex-direction:column;align-items:stretch;gap:3px;padding:6px;margin:0;border-radius:12px}.slot .t{font-size:10px}.cb{font-size:11px;gap:4px}.slot{cursor:pointer}.slot .nt{font-size:11px;padding:4px 5px;border-radius:8px;pointer-events:none}.fab{display:block}}
 .row{display:flex;align-items:center;gap:10px;padding:8px 0}
 .dot{width:12px;height:12px;border-radius:50%;flex:none}
 .grow{flex:1;min-width:0}
@@ -238,7 +238,7 @@ function vToday(){const s=dayStats(day),pct=Math.round(s.n/64*100),cur=week==mon
  let L='';
  for(let g=0;g<16;g++){L+='<div class="hour">';
   for(let i=g*4;i<g*4+4;i++){const v=data.s[day+'-'+i],c=v&&cats[v[0]];
-   L+=`<div class="slot ${c?'has':''} ${i==cur?'cur':''}" ${c?`style="--c:${COL[v[0]]}"`:''}><span class="t ${i%4==3?'b':''}">${tm(i)}</span><button class="cb" data-act="slot" data-i="${i}"><span class="cn ${c?'':'ph'}">${c?esc(c.n):'Category'}</span></button><input class="nt" type="text" maxlength="80" data-n="${i}" placeholder="Note" value="${v?esc(v[1]||''):''}"></div>`}
+   L+=`<div data-act="slot" data-i="${i}" class="slot ${c?'has':''} ${i==cur?'cur':''}" ${c?`style="--c:${COL[v[0]]}"`:''}><span class="t ${i%4==3?'b':''}">${tm(i)}</span><button class="cb" data-act="slot" data-i="${i}"><span class="cn ${c?'':'ph'}">${c?esc(c.n):'Category'}</span></button><input class="nt" type="text" maxlength="80" data-n="${i}" tabindex="-1" placeholder="Note" value="${v?esc(v[1]||''):''}"></div>`}
   L+='</div>'}
  const plan=`<section class="card plan ${planShut?'shut':''}"><div class="row"><h3 class="grow" style="margin:0">📋 Plan for today</h3><button class="pill pp" data-act="paste">Paste</button><button class="pill pt" data-act="pt">${planShut?'Show':'Hide'}</button></div><div class="pb"><textarea data-plan placeholder="Paste or write your plan for ${DN[day]}…">${esc(data.p[day]||'')}</textarea></div></section>`;
  h+=`<div class="dgrid"><aside>${plan}<div class="an">${charts()}</div></aside><main>${L}<button class="btn" data-act="exp">📤 Export day summary</button></main></div><button class="fab" data-act="an">📈 Day analysis</button>`;
@@ -330,6 +330,7 @@ async function auth(k){const email=$('#em').value.trim(),password=$('#pw').value
 document.addEventListener('click',async e=>{
  if(e.target.id=='sheet')return closeSheet();
  const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,i=+b.dataset.i;
+ if(a=='slot'&&!matchMedia('(max-width:759px)').matches&&!e.target.closest('.cb'))return; // desktop: only the category button opens the sheet
  if(a=='tab'){tab=b.dataset.t;render();scrollTo(0,0)}
  else if(a=='prev')go(-1);else if(a=='next')go(1);
  else if(a=='day'){day=i;render()}
