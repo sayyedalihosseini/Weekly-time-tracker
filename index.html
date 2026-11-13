@@ -97,6 +97,10 @@ textarea{min-height:110px;resize:vertical}
 #toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:9}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 .sd{display:inline-block;width:9px;height:9px;border-radius:50%;margin-left:10px;background:#888;vertical-align:middle}.sd.ok{background:#22c55e}.sd.wait{background:#eab308}.sd.err{background:#ef4444}
+.slot.fs{box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 55%,transparent)}
+.ta{margin:12px 0 0}.kb{font-size:12px;margin:6px 0 0}
+.btn:disabled{opacity:.4;box-shadow:none;cursor:default}
+@media(hover:none){.ta,.kb{display:none}}
 </style>
 </head>
 <body>
@@ -105,7 +109,7 @@ textarea{min-height:110px;resize:vertical}
 <div id="toast"></div>
 <script>
 // ====== SUPABASE CONFIG (leave empty = local-only mode) ======
-const SB_URL='', SB_KEY='';
+const SB_URL='https://dphullvddbebbhlesfkl.supabase.co', SB_KEY='sb_publishable_K2c5MjsDjCYwSVldHu9VQw_BAFOvi9j';
 // =============================================================
 const sb=(SB_URL&&window.supabase)?supabase.createClient(SB_URL,SB_KEY):null;
 const $=s=>document.querySelector(s);
@@ -235,10 +239,10 @@ function vToday(){const s=dayStats(day),pct=Math.round(s.n/64*100),cur=week==mon
  h+=`<div class="chips">${chip('XP today',s.xp,'⚡')}${chip('Focus',s.foc.toFixed(1)+' h','🎯')}</div>`;
  h+=`<div class="days">${DN.map((n,i)=>`<button class="${i==day?'on':''}" data-act="day" data-i="${i}">${n}</button>`).join('')}</div>`;
  h+=`<div class="bar"><span style="width:${pct}%"></span></div><p class="mut">${s.n}/64 slots logged, ${pct}%. ${verdict(s.xp)}</p>`;
- let L='';
+ h+='<p class="mut kb" style="margin:-6px 0 10px">Keys: ↑↓ move · Enter log · S same as before · Del clear</p>';let L='';
  for(let g=0;g<16;g++){L+='<div class="hour">';
   for(let i=g*4;i<g*4+4;i++){const v=data.s[day+'-'+i],c=v&&cats[v[0]];
-   L+=`<div data-act="slot" data-i="${i}" class="slot ${c?'has':''} ${i==cur?'cur':''}" ${c?`style="--c:${COL[v[0]]}"`:''}><span class="t ${i%4==3?'b':''}">${tm(i)}</span><button class="cb" data-act="slot" data-i="${i}"><span class="cn ${c?'':'ph'}">${c?esc(c.n):'Category'}</span></button><input class="nt" type="text" maxlength="80" data-n="${i}" tabindex="-1" placeholder="Note" value="${v?esc(v[1]||''):''}"></div>`}
+   L+=`<div data-act="slot" data-i="${i}" class="slot ${c?'has':''} ${i==cur?'cur':''} ${i===fs?'fs':''}" ${c?`style="--c:${COL[v[0]]}"`:''}><span class="t ${i%4==3?'b':''}">${tm(i)}</span><button class="cb" data-act="slot" data-i="${i}"><span class="cn ${c?'':'ph'}">${c?esc(c.n):'Category'}</span></button><input class="nt" type="text" maxlength="80" data-n="${i}" tabindex="-1" placeholder="Note" value="${v?esc(v[1]||''):''}"></div>`}
   L+='</div>'}
  const plan=`<section class="card plan ${planShut?'shut':''}"><div class="row"><h3 class="grow" style="margin:0">📋 Plan for today</h3><button class="pill pp" data-act="paste">Paste</button><button class="pill pt" data-act="pt">${planShut?'Show':'Hide'}</button></div><div class="pb"><textarea data-plan placeholder="Paste or write your plan for ${DN[day]}…">${esc(data.p[day]||'')}</textarea></div></section>`;
  h+=`<div class="dgrid"><aside>${plan}<div class="an">${charts()}</div></aside><main>${L}<button class="btn" data-act="exp">📤 Export day summary</button></main></div><button class="fab" data-act="an">📈 Day analysis</button>`;
@@ -318,9 +322,27 @@ function exportDay(){const t=summary();if(!t)return toast('Nothing logged for th
  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Summary copied'),()=>{
   $('#sheet').innerHTML=`<div><h3 style="margin:0">Day summary</h3><textarea id="xt" style="min-height:260px">${esc(t)}</textarea><button class="btn" data-act="close">Done</button></div>`;$('#sheet').classList.add('open');$('#xt').select()})}
 
-function openSheet(i){sel=i;const v=data.s[day+'-'+i];selCat=v?v[0]:null;
- $('#sheet').innerHTML=`<div><h3 style="margin:0">${DN[day]}, ${tm(i)}</h3><p class="mut" style="margin:2px 0">What did you do in the 15 minutes before?</p><div class="cg">${cats.map((c,k)=>`<button data-act="cat" data-i="${k}" class="${k===selCat?'on':''}"><span class="dot" style="background:${COL[k]}"></span>${esc(c.n)}</button>`).join('')}</div><input id="act" type="text" placeholder="Activity (optional)" value="${esc(v?v[1]:'')}"><select id="fill">${[0,1,2,3,4,5,6,7].map(n=>`<option value="${n}">${n?'Also fill the next '+n+' slot'+(n>1?'s':''):'This slot only'}</option>`).join('')}</select><button class="btn" data-act="ok">Save</button><button class="btn g" data-act="clr">Clear</button></div>`;
- $('#sheet').classList.add('open')}
+let fs=null;
+const prevOf=i=>i>0?data.s[day+'-'+(i-1)]:(day>0?data.s[(day-1)+'-63']:null);
+const markCat=()=>document.querySelectorAll('.cg button').forEach((x,k)=>x.classList.toggle('on',k===selCat));
+const scrollFs=()=>{const e=document.querySelector('.slot.fs');if(e)e.scrollIntoView({block:'nearest'})};
+function moveFs(d){if(fs===null)fs=week==monday()&&day==todayIdx()?curSlot():0;else fs=Math.max(0,Math.min(63,fs+d));
+ document.querySelectorAll('.slot.fs').forEach(x=>x.classList.remove('fs'));
+ const e=document.querySelector('.slot[data-i="'+fs+'"]');if(e){e.classList.add('fs');e.scrollIntoView({block:'nearest'})}}
+function sameAs(i,n){const p=prevOf(i);if(!p||!cats[p[0]])return toast('Nothing before this slot');
+ for(let k=0;k<=n&&i+k<64;k++)data.s[day+'-'+(i+k)]=[p[0],p[1]||''];save();fs=Math.min(63,i+n+1);render();scrollFs()}
+function doSave(){if(selCat===null)return toast('Pick a category first');const t=$('#act').value.trim(),n=+$('#fill').value;
+ for(let k=0;k<=n&&sel+k<64;k++)data.s[day+'-'+(sel+k)]=[selCat,t];save();closeSheet();fs=Math.min(63,sel+n+1);render();scrollFs()}
+function filt(q){q=q.trim().toLowerCase();const L=cats.map((c,i)=>[i,c.n.toLowerCase()]);
+ const m=q?L.filter(x=>x[1].includes(q)).sort((a,b)=>(b[1].startsWith(q)-a[1].startsWith(q))||a[0]-b[0]).map(x=>x[0]):L.map(x=>x[0]);
+ document.querySelectorAll('.cg button').forEach((b,k)=>b.style.display=m.includes(k)?'':'none');
+ if(q&&m.length)selCat=m[0];markCat()}
+function stepCat(d){const v=[...document.querySelectorAll('.cg button')].map((b,k)=>b.style.display=='none'?-1:k).filter(k=>k>=0);if(!v.length)return;
+ const p=v.indexOf(selCat);selCat=v[(p+d+v.length)%v.length];markCat()}
+function openSheet(i){sel=i;fs=i;const v=data.s[day+'-'+i],pv=prevOf(i),can=pv&&cats[pv[0]];selCat=v&&cats[v[0]]?v[0]:null;
+ $('#sheet').innerHTML=`<div><h3 style="margin:0">${DN[day]}, ${tm(i)}</h3><p class="mut" style="margin:2px 0">What did you do in the 15 minutes before?</p><input id="tq" class="ta" type="text" placeholder="Type a category name…" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="cg">${cats.map((c,k)=>`<button tabindex="-1" data-act="cat" data-i="${k}" class="${k===selCat?'on':''}"><span class="dot" style="background:${COL[k]}"></span>${esc(c.n)}</button>`).join('')}</div><input id="act" type="text" placeholder="Note (optional)" value="${esc(v?v[1]||'':'')}"><select id="fill">${[0,1,2,3,4,5,6,7].map(n=>`<option value="${n}">${n?'Also fill the next '+n+' slot'+(n>1?'s':''):'This slot only'}</option>`).join('')}</select><button class="btn" data-act="ok">Save</button><button class="btn g" data-act="same" ${can?'':'disabled'}>Same as before${can?' ('+esc(cats[pv[0]].n)+')':''}</button><button class="btn g" data-act="clr">Clear</button><p class="mut kb">Enter saves · Esc closes · Tab next field · ↑↓ pick category</p></div>`;
+ $('#sheet').classList.add('open');
+ if(matchMedia('(hover:hover) and (pointer:fine)').matches)$('#tq').focus()}
 const closeSheet=()=>$('#sheet').classList.remove('open');
 
 async function auth(k){const email=$('#em').value.trim(),password=$('#pw').value;
@@ -337,8 +359,8 @@ document.addEventListener('click',async e=>{
  else if(a=='day'){day=i;render()}
  else if(a=='slot')openSheet(i);
  else if(a=='cat'){selCat=i;document.querySelectorAll('.cg button').forEach((x,k)=>x.classList.toggle('on',k==i))}
- else if(a=='ok'){if(selCat===null)return;const t=$('#act').value.trim(),n=+$('#fill').value;
-  for(let k=0;k<=n&&sel+k<64;k++)data.s[day+'-'+(sel+k)]=[selCat,t];save();closeSheet();render()}
+ else if(a=='ok')doSave();
+ else if(a=='same'){sameAs(sel,+$('#fill').value);closeSheet()}
  else if(a=='clr'){const n=+$('#fill').value;for(let k=0;k<=n&&sel+k<64;k++)delete data.s[day+'-'+(sel+k)];save();closeSheet();render()}
  else if(a=='in'||a=='up')auth(a);
  else if(a=='off'){offline=true;ls('offline',1);boot()}
@@ -352,10 +374,26 @@ document.addEventListener('click',async e=>{
  else if(a=='paste'){try{const t=await navigator.clipboard.readText();if(t){const ta=$('[data-plan]');ta.value=ta.value?ta.value+'\n'+t:t;data.p[day]=ta.value;autoh(ta);save()}}catch(x){toast('Paste blocked. Long-press the box and paste.')}}
 });
 document.addEventListener('input',e=>{const t=e.target;
+ if(t.id=='tq'){filt(t.value);return}
  if(t.dataset.plan!==undefined){data.p[day]=t.value;autoh(t);save()}
  else if(t.dataset.n!==undefined){const k=day+'-'+t.dataset.n,v=data.s[k];if(v)v[1]=t.value;else if(t.value)data.s[k]=[null,t.value];if(v&&v[0]===null&&!t.value)delete data.s[k];save()}
  else if(t.dataset.ci!==undefined){const c=cats[+t.dataset.ci],f=t.dataset.f;c[f]=f=='n'?t.value:f=='xp'?+t.value||0:t.checked?1:0;saveCats()}});
 
+document.addEventListener('keydown',e=>{
+ const t=e.target,tag=t.tagName;
+ if($('#sheet').classList.contains('open')){
+  if(e.key=='Escape'){e.preventDefault();closeSheet();return}
+  if(e.key=='Enter'&&(tag=='INPUT'||tag=='SELECT')){e.preventDefault();doSave();return}
+  if(t.id=='tq'&&(e.key=='ArrowDown'||e.key=='ArrowUp')){e.preventDefault();stepCat(e.key=='ArrowDown'?1:-1)}
+  return}
+ if(tab!='today'||!document.querySelector('.slot')||e.metaKey||e.ctrlKey||e.altKey)return;
+ if(tag=='INPUT'||tag=='TEXTAREA'||tag=='SELECT'){if(e.key=='Escape'||(e.key=='Enter'&&t.classList.contains('nt')))t.blur();return}
+ const mob=matchMedia('(max-width:759px)').matches,mv={ArrowDown:mob?4:1,ArrowUp:mob?-4:-1,ArrowRight:mob?1:0,ArrowLeft:mob?-1:0}[e.key];
+ if(mv){e.preventDefault();moveFs(mv)}
+ else if(e.key=='Enter'&&fs!==null&&tag!='BUTTON'){e.preventDefault();openSheet(fs)}
+ else if((e.key=='s'||e.key=='S')&&fs!==null){e.preventDefault();sameAs(fs,0)}
+ else if((e.key=='Delete'||e.key=='Backspace')&&fs!==null){e.preventDefault();delete data.s[day+'-'+fs];save();render();scrollFs()}
+});
 (async()=>{
  if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js');
  if(sb){const{data:{session}}=await sb.auth.getSession();user=session?.user||null;
