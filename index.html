@@ -96,6 +96,7 @@ textarea{min-height:110px;resize:vertical}
 .tg:disabled{opacity:.4;cursor:default}
 #toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:9}
 #toast.show{opacity:1;transform:translate(-50%,0)}
+.sd{display:inline-block;width:9px;height:9px;border-radius:50%;margin-left:10px;background:#888;vertical-align:middle}.sd.ok{background:#22c55e}.sd.wait{background:#eab308}.sd.err{background:#ef4444}
 </style>
 </head>
 <body>
@@ -156,23 +157,73 @@ function weekStats(){const days=[0,1,2,3,4,5,6].map(dayStats);
  let run=0,best=0;days.forEach(s=>{run=s.n>=48?run+1:0;best=Math.max(best,run)});
  return{days,t,streak:best,pct:Math.round(t.n/448*100)}}
 
-// ---- storage / sync ----
-function save(){ls('w:'+week,data);ls('dirty:'+week,1);clearTimeout(timer);const w=week,d=data;timer=setTimeout(()=>push(w,d),800)}
-async function push(w,d){if(!sb||!user)return;const{error}=await sb.from('weeks').upsert({user_id:user.id,week_start:w,data:d,updated_at:new Date().toISOString()});if(!error)localStorage.removeItem('wtt:dirty:'+w)}
+// ---- storage / sync (per-slot rows, realtime) ----
+const base={},clone=o=>JSON.parse(JSON.stringify(o));
+let ch=null,flushing=false,pendRender=false,syncSt=SB_URL?'wait':'loc',rt;
+function setSync(st){syncSt=st;document.querySelectorAll('.sd').forEach(e=>e.className='sd '+st)}
+function renderSoft(){clearTimeout(rt);rt=setTimeout(()=>{const a=document.activeElement;if(a&&a.matches&&a.matches('#app input,#app textarea'))pendRender=true;else render()},120)}
+document.addEventListener('focusout',()=>{if(pendRender){pendRender=false;renderSoft()}});
+// every change is stored as a small op for ONE slot or ONE plan, never the whole week
+function save(){ls('w2:'+week,data);if(!(sb&&user))return;
+ const old=base[week]||{s:{},p:{}},q=ls('q')||{};
+ new Set([...Object.keys(data.s),...Object.keys(old.s)]).forEach(k=>{const a=data.s[k],b=old.s[k];if(JSON.stringify(a)==JSON.stringify(b))return;
+  const[d,i]=k.split('-').map(Number);q['s|'+week+'|'+k]=a?{k:'s',w:week,d,i,c:a[0],n:a[1]||''}:{k:'sd',w:week,d,i}});
+ for(let d=0;d<7;d++)if((data.p[d]||'')!=(old.p[d]||''))q['p|'+week+'|'+d]={k:'p',w:week,d,t:data.p[d]||''};
+ base[week]=clone(data);ls('q',q);setSync('wait');clearTimeout(timer);timer=setTimeout(flush,700)}
+async function flush(){if(!sb||!user||flushing)return;const q=ls('q')||{},ks=Object.keys(q);
+ if(!ks.length){setSync('ok');return}
+ flushing=true;setSync('wait');const u=user.id,ops=ks.map(k=>q[k]);let fail=false;
+ try{
+  const up=ops.filter(o=>o.k=='s').map(o=>({user_id:u,week_start:o.w,day:o.d,slot:o.i,cat:o.c,note:o.n,updated_at:new Date().toISOString()}));
+  if(up.length){const{error}=await sb.from('slots').upsert(up);if(error)throw error}
+  const dl={};ops.filter(o=>o.k=='sd').forEach(o=>(dl[o.w+'|'+o.d]=dl[o.w+'|'+o.d]||[]).push(o.i));
+  for(const g in dl){const[w,d]=g.split('|');const{error}=await sb.from('slots').delete().eq('user_id',u).eq('week_start',w).eq('day',+d).in('slot',dl[g]);if(error)throw error}
+  const pl=ops.filter(o=>o.k=='p').map(o=>({user_id:u,week_start:o.w,day:o.d,text:o.t,updated_at:new Date().toISOString()}));
+  if(pl.length){const{error}=await sb.from('plans').upsert(pl);if(error)throw error}
+  const q2=ls('q')||{};ks.forEach(k=>{if(JSON.stringify(q2[k])==JSON.stringify(q[k]))delete q2[k]});ls('q',q2);
+ }catch(e){fail=true}
+ flushing=false;
+ if(fail){setSync('err');setTimeout(flush,15000)}else if(Object.keys(ls('q')||{}).length)flush();else setSync('ok')}
+async function pull(){if(!sb||!user)return;const w=week;
+ const[a,b]=await Promise.all([sb.from('slots').select('day,slot,cat,note').eq('week_start',w),sb.from('plans').select('day,text').eq('week_start',w)]);
+ if(a.error||b.error){setSync('err');return}
+ if(w!=week)return;
+ const q=ls('q')||{},s={},p={};
+ a.data.forEach(r=>s[r.day+'-'+r.slot]=[r.cat,r.note||'']);b.data.forEach(r=>p[r.day]=r.text||'');
+ Object.values(q).forEach(o=>{if(o.w!=w)return;                       // unsent local changes always win
+  if(o.k=='s')s[o.d+'-'+o.i]=[o.c,o.n];else if(o.k=='sd')delete s[o.d+'-'+o.i];else p[o.d]=o.t});
+ data={s,p};base[w]=clone(data);ls('w2:'+w,data);renderSoft()}
+function onRT(t,p){if(!user)return;const r=(p.new&&p.new.user_id)?p.new:p.old;
+ if(!r||r.user_id!=user.id||r.week_start!=week)return;
+ const q=ls('q')||{};
+ if(t=='s'){const k=r.day+'-'+r.slot;if(q['s|'+week+'|'+k])return;
+  if(p.eventType=='DELETE')delete data.s[k];else data.s[k]=[p.new.cat,p.new.note||''];}
+ else{if(q['p|'+week+'|'+r.day])return;data.p[r.day]=p.eventType=='DELETE'?'':(p.new.text||'')}
+ base[week]=clone(data);ls('w2:'+week,data);renderSoft()}
+function sub(){if(!sb||!user||ch)return;const f='user_id=eq.'+user.id;
+ ch=sb.channel('wtt-'+user.id)
+  .on('postgres_changes',{event:'*',schema:'public',table:'slots',filter:f},p=>onRT('s',p))
+  .on('postgres_changes',{event:'*',schema:'public',table:'plans',filter:f},p=>onRT('p',p))
+  .on('postgres_changes',{event:'*',schema:'public',table:'settings',filter:f},p=>{if(p.new&&p.new.cats){cats=p.new.cats;ls('cats',cats);renderSoft()}})
+  .subscribe(st=>{if(st=='SUBSCRIBED')flush().then(pull)})}
 async function saveCats(){ls('cats',cats);if(sb&&user)await sb.from('settings').upsert({user_id:user.id,cats,updated_at:new Date().toISOString()})}
-async function loadWeek(){data=ls('w:'+week)||{s:{},p:{}};render();
- if(!sb||!user)return;
- if(ls('dirty:'+week)){push(week,data);return}
- const{data:r}=await sb.from('weeks').select('data').eq('week_start',week).maybeSingle();
- if(r){data=r.data;ls('w:'+week,data);render()}}
+async function loadWeek(){data=ls('w2:'+week)||{s:{},p:{}};base[week]=clone(data);render();await flush();pull()}
 async function boot(){
- if(sb&&user){const{data:r}=await sb.from('settings').select('cats').maybeSingle();if(r){cats=r.cats;ls('cats',cats)}else saveCats()}
+ if(sb&&user){
+  const{data:r}=await sb.from('settings').select('cats').maybeSingle();if(r){cats=r.cats;ls('cats',cats)}else saveCats();
+  if(ls('uid')!=user.id){ // first time this device meets this account: upload what is stored locally (adds only)
+   const q=ls('q')||{};
+   for(let n=0;n<localStorage.length;n++){const k=localStorage.key(n);if(!k.startsWith('wtt:w2:'))continue;const w=k.slice(7),d=JSON.parse(localStorage[k]);
+    Object.entries(d.s||{}).forEach(([key,v])=>{const[dd,i]=key.split('-').map(Number);q['s|'+w+'|'+key]={k:'s',w,d:dd,i,c:v[0],n:v[1]||''}});
+    Object.entries(d.p||{}).forEach(([dd,t])=>{if(t)q['p|'+w+'|'+dd]={k:'p',w,d:+dd,t}})}
+   ls('q',q);ls('uid',user.id)}
+  sub()}
  loadWeek()}
 function go(n){week=addDays(week,7*n);day=week==monday()?todayIdx():0;loadWeek()}
 
 // ---- views ----
 const ICON={today:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',week:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>',setup:'<svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>'};
-const head=(t,sub,nav)=>`<header><div><h1>${t}</h1><div class="mut" style="margin:0">${sub}</div></div>${nav?`<div class="nav"><button class="rb" data-act="prev" aria-label="Previous week">‹</button><button class="rb" data-act="next" aria-label="Next week">›</button></div>`:''}</header>`;
+const head=(t,sub,nav)=>`<header><div><h1>${t}<span class="sd ${syncSt}" title="Sync status"></span></h1><div class="mut" style="margin:0">${sub}</div></div>${nav?`<div class="nav"><button class="rb" data-act="prev" aria-label="Previous week">‹</button><button class="rb" data-act="next" aria-label="Next week">›</button></div>`:''}</header>`;
 const chip=(l,v,i)=>`<div class="chip"><small>${l}</small><b>${v}</b><i>${i}</i></div>`;
 const range=()=>fmt(week)+' – '+fmt(addDays(week,6));
 
@@ -306,10 +357,12 @@ document.addEventListener('input',e=>{const t=e.target;
 (async()=>{
  if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js');
  if(sb){const{data:{session}}=await sb.auth.getSession();user=session?.user||null;
-  sb.auth.onAuthStateChange((ev,s)=>{const id=s?.user?.id;if(id!==user?.id){user=s?.user||null;user?boot():render()}})}
- // new Monday: week is recomputed at every launch
- document.addEventListener('visibilitychange',()=>{if(!document.hidden&&tab!='setup'&&monday()!=week&&week==ls('last')){week=monday();day=todayIdx();loadWeek()}});
- ls('last',week);
+  sb.auth.onAuthStateChange((ev,s)=>{const id=s?.user?.id;if(id!==user?.id){user=s?.user||null;if(user)boot();else{if(ch){sb.removeChannel(ch);ch=null}render()}}})}
+ let cm=monday();
+ const wake=()=>{if(document.hidden)return;
+  if(monday()!=cm){const old=cm;cm=monday();if(week==old){week=cm;day=todayIdx();loadWeek();return}}
+  flush().then(pull)};
+ document.addEventListener('visibilitychange',wake);addEventListener('online',wake);addEventListener('focus',wake);
  if(sb&&!user&&!offline)render();else boot();
 })();
 </script>
