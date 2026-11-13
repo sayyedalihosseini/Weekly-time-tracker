@@ -105,7 +105,7 @@ textarea{min-height:110px;resize:vertical}
 <div id="toast"></div>
 <script>
 // ====== SUPABASE CONFIG (leave empty = local-only mode) ======
-const SB_URL='https://dphullvddbebbhlesfkl.supabase.co', SB_KEY='sb_publishable_K2c5MjsDjCYwSVldHu9VQw_BAFOvi9j';
+const SB_URL='', SB_KEY='';
 // =============================================================
 const sb=(SB_URL&&window.supabase)?supabase.createClient(SB_URL,SB_KEY):null;
 const $=s=>document.querySelector(s);
@@ -324,6 +324,7 @@ function openSheet(i){sel=i;const v=data.s[day+'-'+i];selCat=v?v[0]:null;
 const closeSheet=()=>$('#sheet').classList.remove('open');
 
 async function auth(k){const email=$('#em').value.trim(),password=$('#pw').value;
+ if(!email||password.length<6){$('#msg').textContent='Enter your email and a password (at least 6 characters).';return}
  const r=k=='up'?await sb.auth.signUp({email,password}):await sb.auth.signInWithPassword({email,password});
  $('#msg').textContent=r.error?r.error.message:(k=='up'&&!r.data.session?'Check your email to confirm, then sign in.':'')}
 
