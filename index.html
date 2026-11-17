@@ -76,7 +76,7 @@ textarea{min-height:110px;resize:vertical}
 .cg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
 .cg button{display:flex;align-items:center;gap:8px;text-align:left;border:2px solid var(--bd);border-radius:16px;background:var(--bg);color:var(--tx);padding:10px 12px;font:500 14px Lexend;cursor:pointer}
 .cg .on{border-color:var(--ac);border-bottom-width:5px}
-.set{display:grid;grid-template-columns:14px 1fr 64px 44px;gap:8px;align-items:center;margin:6px 0}
+.set{display:grid;grid-template-columns:30px 1fr 64px 44px;gap:8px;align-items:center;margin:6px 0}
 .set input{margin:0;padding:9px 10px}
 .set input[type=checkbox]{width:22px;height:22px;accent-color:var(--ac)}
 .err{color:#f0645a;font-size:14px;min-height:20px}
@@ -134,7 +134,25 @@ textarea{min-height:110px;resize:vertical}
 .hgm{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1;margin-top:6px}
 .hgbig .hgm{font-size:44px}
 .hgcard{text-align:center}.hgcard h3{text-align:left}
+/* now / next trio (phones only) */
+.tri{display:none}
+.trow{display:grid;grid-template-columns:46px 44px minmax(0,1fr);align-items:center;gap:8px;text-align:left;width:100%;border:2px solid transparent;border-radius:18px;background:var(--sf);color:var(--tx);font:inherit;padding:9px 12px;min-height:58px;cursor:pointer}
+.trow.has{background:color-mix(in srgb,var(--c) 20%,var(--sf));border-color:color-mix(in srgb,var(--c) 40%,transparent)}
+.trow.now{border-color:var(--ac);border-bottom-width:5px}
+.trow.off{opacity:.45;cursor:default}
+.ttag{font-size:11px;font-weight:700;color:var(--mu)}.trow.now .ttag{color:var(--ac)}
+.ttm{font-size:13px;color:var(--mu)}
+.tbd{min-width:0;display:flex;flex-direction:column}
+.tbd b{font-weight:500;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbd b::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:6px}
+.tbd b.ph{color:var(--mu)}.tbd b.ph::before{display:none}
+.tbd em{font-style:normal;font-size:12px;color:var(--mu);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:759px){.tri{display:flex;flex-direction:column;gap:8px;margin-top:14px}.hgbig .hgw{width:min(160px,42vw)}.hgbig .hgm{font-size:38px}.hgnote{display:none}.hgcard.pg{padding:12px 18px}}
 @media(prefers-reduced-motion:reduce){.hgw{transition-duration:.01s}.hgw .st1{animation:none}.tabs,.tabs *{transition-duration:.01s!important;animation:none!important}}
+.set input.cp{width:28px;height:28px;padding:0;margin:0;border:0;border-radius:50%;background:none;cursor:pointer;-webkit-appearance:none;appearance:none}
+.cp::-webkit-color-swatch-wrapper{padding:0}
+.cp::-webkit-color-swatch{border:2px solid color-mix(in srgb,var(--tx) 25%,transparent);border-radius:50%}
+.cp::-moz-color-swatch{border:2px solid color-mix(in srgb,var(--tx) 25%,transparent);border-radius:50%}
 </style>
 </head>
 <body>
@@ -150,6 +168,7 @@ const sb=(SB_URL&&window.supabase)?supabase.createClient(SB_URL,SB_KEY):null;
 const $=s=>document.querySelector(s);
 const DN=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const COL=['#8b5cf6','#3b82f6','#06b6d4','#14b8a6','#94a3b8','#22c55e','#eab308','#f97316','#a78bfa','#ec4899','#64748b','#ef4444'];
+const col=i=>(cats[i]&&cats[i].c)||COL[i]||'#888';
 const DEF=[['Deep Work',15,1],['Study',12,1],['Job Search',12,1],['Meetings/Class',8,1],['Admin',5,0],['Exercise',10,0],['Social',5,0],['Meals',3,0],['Rest',3,0],['Leisure',2,0],['Commute',1,0],['Wasted',-5,0]];
 const ls=(k,v)=>v===undefined?(()=>{try{return JSON.parse(localStorage.getItem('wtt:'+k))}catch(e){return null}})():localStorage.setItem('wtt:'+k,JSON.stringify(v));
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -161,7 +180,7 @@ const tm=i=>{const m=495+15*i;return String(m/60|0).padStart(2,'0')+':'+String(m
 const todayIdx=()=>(new Date().getDay()+6)%7;
 const curSlot=()=>{const n=new Date(),m=n.getHours()*60+n.getMinutes();return Math.min(63,Math.max(0,Math.ceil((m-495)/15)))};
 
-let cats=ls('cats')||DEF.map(([n,xp,f])=>({n,xp,f})), week=monday(), day=todayIdx(), tab='today';
+let cats=ls('cats')||DEF.map(([n,xp,f])=>({n,xp,f})), week=monday(), day=todayIdx(), tab=matchMedia('(max-width:759px)').matches?'glass':'today';
 let data={s:{},p:{}}, user=null, offline=!!ls('offline'), sel=null, selCat=null, timer;
 
 // ---- theme ----
@@ -245,11 +264,12 @@ function sub(){if(!sb||!user||ch)return;const f='user_id=eq.'+user.id;
   .on('postgres_changes',{event:'*',schema:'public',table:'plans',filter:f},p=>onRT('p',p))
   .on('postgres_changes',{event:'*',schema:'public',table:'settings',filter:f},p=>{if(p.new&&p.new.cats){cats=p.new.cats;ls('cats',cats);renderSoft()}})
   .subscribe(st=>{if(st=='SUBSCRIBED')flush().then(pull)})}
-async function saveCats(){ls('cats',cats);if(sb&&user)await sb.from('settings').upsert({user_id:user.id,cats,updated_at:new Date().toISOString()})}
+let sct;function saveCatsSoon(){ls('cats',cats);ls('cd',1);clearTimeout(sct);sct=setTimeout(saveCats,600)}
+async function saveCats(){ls('cats',cats);ls('cd',1);if(sb&&user){const{error}=await sb.from('settings').upsert({user_id:user.id,cats,updated_at:new Date().toISOString()});if(!error)localStorage.removeItem('wtt:cd')}}
 async function loadWeek(){data=ls('w2:'+week)||{s:{},p:{}};base[week]=clone(data);render();loadCarry();await flush();pull()}
 async function boot(){
  if(sb&&user){
-  const{data:r}=await sb.from('settings').select('cats').maybeSingle();if(r){cats=r.cats;ls('cats',cats)}else saveCats();
+  const{data:r}=await sb.from('settings').select('cats').maybeSingle();if(ls('cd'))saveCats();else if(r){cats=r.cats;ls('cats',cats)}else saveCats();
   if(ls('uid')!=user.id){ // first time this device meets this account: upload what is stored locally (adds only)
    const q=ls('q')||{};
    for(let n=0;n<localStorage.length;n++){const k=localStorage.key(n);if(!k.startsWith('wtt:w2:'))continue;const w=k.slice(7),d=JSON.parse(localStorage[k]);
@@ -273,7 +293,7 @@ function go(n){week=addDays(week,7*n);day=week==monday()?todayIdx():0;loadWeek()
 // ---- views ----
 // ---- hourglass (driven by the wall clock only) ----
 let hg=Object.assign({every:60},ls('hg'));if(hg.every!=15)hg.every=60;
-let hgK=null,hgRot=0,hgFl;
+let hgK=null,hgRot=0,hgFl,hgReady=false,lastTrio=null;
 const TOPP='M32,24H128C128,70 94,92 84,116H76C66,92 32,70 32,24Z',BOTP='M32,216H128C128,170 94,148 84,124H76C66,148 32,170 32,216Z';
 // area tables so that sand volume (not height) follows time
 const HG=(()=>{const N=240,Y=[],W=[];
@@ -292,6 +312,7 @@ function hgSpin(instant){document.querySelectorAll('.hgw').forEach(w=>{
   else w.style.transform='rotate('+hgRot+'deg)'});
  if(!instant){document.querySelectorAll('.hg').forEach(e=>e.classList.add('fl'));clearTimeout(hgFl);hgFl=setTimeout(()=>document.querySelectorAll('.hg').forEach(e=>e.classList.remove('fl')),1700)}}
 function hgTick(snap){const s=hgState();
+ if(hgReady&&tab=='glass'&&lastTrio!==trioKey()){render();return}
  if(hgK!==s.k){const one=hgK!==null&&s.k===hgK+1&&!snap&&!document.hidden&&document.querySelector('.hg');
   hgK=s.k;if(one){hgRot+=180;hgSpin(false)}else{hgRot=(s.k%2)*180;hgSpin(true)}}
  const els=document.querySelectorAll('.hg');if(!els.length)return;
@@ -309,8 +330,16 @@ const HGSVG=`<svg viewBox="0 0 160 240" aria-hidden="true"><defs><clipPath id="h
 <path class="go" d="${TOPP}"/><path class="go" d="${BOTP}"/>
 <path class="hl" d="M42,34C42,64 60,84 72,100"/><path class="hl" d="M118,206C118,176 100,156 88,140"/>
 <rect class="pl" x="20" y="6" width="120" height="18" rx="9"/><rect class="pl" x="20" y="216" width="120" height="18" rx="9"/></svg>`;
-function hgCard(big){return `<div class="card hgcard"><h3>⏳ Hourglass</h3><div class="hg ${big?'hgbig':''}"><div class="hgw" style="transform:rotate(${hgRot}deg)">${HGSVG}</div><div class="hgm">--:--</div><div class="hgn mut"> </div><div class="mut" style="font-size:12px">${hg.every==60?'Hourly':'15-minute'} glass</div></div></div>`}
-const vGlassPage=()=>head('Hourglass',hg.every==60?'Flips every hour, on the hour':'Flips every 15 minutes, on the clock')+hgCard(true)+'<p class="mut" style="text-align:center">Change the interval in Setup.</p>';
+function hgCard(big,pg){return `<div class="card hgcard ${pg?'pg':''}">${pg?'':'<h3>⏳ Hourglass</h3>'}<div class="hg ${big?'hgbig':''}"><div class="hgw" style="transform:rotate(${hgRot}deg)">${HGSVG}</div><div class="hgm">--:--</div><div class="hgn mut"> </div><div class="mut" style="font-size:12px">${hg.every==60?'Hourly':'15-minute'} glass</div></div></div>`}
+const nowSlot=()=>{const n=new Date();return Math.floor((n.getHours()*60+n.getMinutes()+n.getSeconds()/60-495)/15)+1};
+const trioKey=()=>monday()+'|'+todayIdx()+'|'+nowSlot();
+function vTrio(){lastTrio=trioKey();const c=nowSlot(),dd=week==monday()?data:(ls('w2:'+monday())||{s:{}}),dy=todayIdx();
+ return '<div class="tri">'+[['Done',c-1],['Now',c],['Next',c+1]].map(([tg,i])=>{
+  if(i<0||i>63)return `<div class="trow off"><span class="ttag">${tg}</span><span class="ttm">–</span><span class="tbd"><em>${i<0?'Log starts at 08:00':'Log ends at 24:00'}</em></span></div>`;
+  const v=dd.s[dy+'-'+i],k=v&&cats[v[0]];
+  return `<button class="trow ${k?'has':''} ${tg=='Now'?'now':''}" data-act="tslot" data-i="${i}" ${k?`style="--c:${col(v[0])}"`:''}><span class="ttag">${tg}</span><span class="ttm">${tm(i)}</span><span class="tbd">${k?`<b>${esc(k.n)}</b>`:'<b class="ph">Tap to log</b>'}${v&&v[1]?`<em>${esc(v[1])}</em>`:''}</span></button>`}).join('')+'</div>'}
+function nowSync(){if(week==monday()&&day==todayIdx())return;week=monday();day=todayIdx();data=ls('w2:'+week)||{s:{},p:{}};base[week]=clone(data);pull()}
+const vGlassPage=()=>head('Hourglass',hg.every==60?'Flips every hour, on the hour':'Flips every 15 minutes, on the clock')+hgCard(true,true)+vTrio()+'<p class="mut hgnote" style="text-align:center">Change the interval in Setup.</p>';
 const vHgSet=()=>`<div class="card"><h3>⏳ Hourglass</h3><div class="seg">${[[60,'Every hour'],[15,'Every 15 min']].map(([m,l])=>`<button class="${hg.every==m?'on':''}" data-act="hgp" data-m="${m}">${l}</button>`).join('')}</div><p class="mut" style="margin:10px 0 0">It follows the clock, not your activity, and flips by itself. Saved on this device.</p></div>`;
 hgTick(true);
 
@@ -330,7 +359,7 @@ function vToday(){const s=dayStats(day),pct=Math.round(s.n/64*100),cur=week==mon
  h+='<p class="mut kb" style="margin:-6px 0 10px">Keys: ↑↓ move · Enter log · S same as before · Del clear</p>';let L='';
  for(let g=0;g<16;g++){L+='<div class="hour">';
   for(let i=g*4;i<g*4+4;i++){const v=data.s[day+'-'+i],c=v&&cats[v[0]];
-   L+=`<div data-act="slot" data-i="${i}" class="slot ${c?'has':''} ${i==cur?'cur':''} ${i===fs?'fs':''}" ${c?`style="--c:${COL[v[0]]}"`:''}><span class="t ${i%4==3?'b':''}">${tm(i)}</span><button class="cb" data-act="slot" data-i="${i}"><span class="cn ${c?'':'ph'}">${c?esc(c.n):'Category'}</span></button><input class="nt" type="text" maxlength="80" data-n="${i}" tabindex="-1" placeholder="Note" value="${v?esc(v[1]||''):''}"></div>`}
+   L+=`<div data-act="slot" data-i="${i}" class="slot ${c?'has':''} ${i==cur?'cur':''} ${i===fs?'fs':''}" ${c?`style="--c:${col(v[0])}"`:''}><span class="t ${i%4==3?'b':''}">${tm(i)}</span><button class="cb" data-act="slot" data-i="${i}"><span class="cn ${c?'':'ph'}">${c?esc(c.n):'Category'}</span></button><input class="nt" type="text" maxlength="80" data-n="${i}" tabindex="-1" placeholder="Note" value="${v?esc(v[1]||''):''}"></div>`}
   L+='</div>'}
  const plan=`<section class="card plan ${planShut?'shut':''}"><div class="row"><h3 class="grow" style="margin:0">📋 Plan for today</h3><button class="pill pp" data-act="paste">Paste</button><button class="pill pt" data-act="pt">${planShut?'Show':'Hide'}</button></div><div class="pb"><textarea data-plan placeholder="Paste or write your plan for ${DN[day]}…">${esc(data.p[day]||'')}</textarea></div></section>`;
  h+=`<div class="dgrid"><aside>${plan}<div class="an">${charts()}</div></aside><main>${L}<button class="btn" data-act="exp">📤 Export day summary</button></main><aside class="hgcol">${hgCard()}</aside></div><button class="fab" data-act="an">📈 Day analysis</button>`;
@@ -346,15 +375,15 @@ function vWeek(){const W=weekStats(),tot=Math.max(0,carry+W.t.xp),lvl=Math.floor
  h+=`<div class="card"><div class="row"><span class="grow">Week logged</span><b>${W.pct}%</b></div><div class="bar"><span style="width:${W.pct}%"></span></div><p class="mut" style="margin-bottom:0">${st}. Best day: ${W.t.xp?DN[bd]+' ('+W.days[bd].xp+' XP)':'none yet'}. Time leak: ${W.t.waste.toFixed(1)} h (${lt}%).</p></div>`;
  h+=`<div class="card"><h3>Day by day</h3>${W.days.map((s,i)=>`<div class="row"><span style="width:36px">${DN[i]}</span><div class="grow bar"><span style="width:${Math.round(s.n/64*100)}%"></span></div><span style="width:70px;text-align:right;font-size:14px">${s.xp} XP ${s.n>=48?'✓':''}</span></div>`).join('')}</div>`;
  h+=`<div class="card"><h3>🥧 Week: where the time went</h3>${pie(W.t.h)}</div>`;
- h+=`<div class="card"><h3>📚 Daily mix</h3>${W.days.map((s,i)=>`<div class="row"><span style="width:36px">${DN[i]}</span><div class="grow bar" style="display:flex">${s.h.map((v,k)=>v?`<span style="width:${v/16*100}%;background:${COL[k]};border-radius:0"></span>`:'').join('')}</div><span style="width:44px;text-align:right;font-size:14px">${(s.n/4).toFixed(1)}h</span></div>`).join('')}</div>`;
+ h+=`<div class="card"><h3>📚 Daily mix</h3>${W.days.map((s,i)=>`<div class="row"><span style="width:36px">${DN[i]}</span><div class="grow bar" style="display:flex">${s.h.map((v,k)=>v?`<span style="width:${v/16*100}%;background:${col(k)};border-radius:0"></span>`:'').join('')}</div><span style="width:44px;text-align:right;font-size:14px">${(s.n/4).toFixed(1)}h</span></div>`).join('')}</div>`;
  const mx=Math.max(.25,...W.t.h);
- h+=`<div class="card"><h3>Hours by category</h3>${cats.map((c,i)=>W.t.h[i]?`<div class="row"><span class="dot" style="background:${COL[i]}"></span><span style="width:112px;font-size:14px">${esc(c.n)}</span><div class="grow bar"><span style="width:${W.t.h[i]/mx*100}%;background:${COL[i]}"></span></div><span style="width:44px;text-align:right;font-size:14px">${W.t.h[i].toFixed(1)}</span></div>`:'').join('')||'<p class="mut">Nothing logged yet.</p>'}</div>`;
- let m='';for(let i=0;i<64;i++)for(let d=0;d<7;d++){const v=data.s[d+'-'+i];m+=v&&cats[v[0]]?`<u style="background:${COL[v[0]]}"></u>`:'<u></u>'}
+ h+=`<div class="card"><h3>Hours by category</h3>${cats.map((c,i)=>W.t.h[i]?`<div class="row"><span class="dot" style="background:${col(i)}"></span><span style="width:112px;font-size:14px">${esc(c.n)}</span><div class="grow bar"><span style="width:${W.t.h[i]/mx*100}%;background:${col(i)}"></span></div><span style="width:44px;text-align:right;font-size:14px">${W.t.h[i].toFixed(1)}</span></div>`:'').join('')||'<p class="mut">Nothing logged yet.</p>'}</div>`;
+ let m='';for(let i=0;i<64;i++)for(let d=0;d<7;d++){const v=data.s[d+'-'+i];m+=v&&cats[v[0]]?`<u style="background:${col(v[0])}"></u>`:'<u></u>'}
  h+=`<div class="card"><h3>Week map</h3><div class="map">${m}</div></div>`;
  return h}
 
 function vSetup(){let h=head('Setup','Appearance, hourglass, categories, account')+vTheme()+vHgSet();
- h+=`<div class="card"><div class="set mut" style="margin:0"><span></span><span>Name</span><span>XP</span><span>Focus</span></div>${cats.map((c,i)=>`<div class="set"><span class="dot" style="background:${COL[i]}"></span><input type="text" value="${esc(c.n)}" data-ci="${i}" data-f="n"><input type="number" value="${c.xp}" data-ci="${i}" data-f="xp"><input type="checkbox" ${c.f?'checked':''} data-ci="${i}" data-f="f"></div>`).join('')}<p class="mut" style="margin-bottom:0">The last row is your time leak category.</p></div>`;
+ h+=`<div class="card"><div class="set mut" style="margin:0"><span></span><span>Name</span><span>XP</span><span>Focus</span></div>${cats.map((c,i)=>`<div class="set"><input type="color" class="cp" value="${col(i)}" data-ci="${i}" data-f="c" aria-label="Color for ${esc(c.n)}"><input type="text" value="${esc(c.n)}" data-ci="${i}" data-f="n"><input type="number" value="${c.xp}" data-ci="${i}" data-f="xp"><input type="checkbox" ${c.f?'checked':''} data-ci="${i}" data-f="f"></div>`).join('')}<p class="mut" style="margin-bottom:0">Tap a circle to change its color. The last row is your time leak category.</p><button class="btn g" data-act="rc">Reset colors</button></div>`;
  h+=`<div class="card"><h3>Account</h3>`+(sb?(user?`<p class="mut">Signed in as ${esc(user.email)}. Data syncs across your devices.</p><button class="btn g" data-act="out">Sign out</button>`:`<p class="mut">Local mode. Sign in to sync.</p><button class="btn" data-act="signin">Sign in</button>`):`<p class="mut">Local mode. Add your Supabase keys in index.html to sync devices.</p>`)+`</div>`;
  return h}
 
@@ -399,16 +428,16 @@ function pie(h){const T=h.reduce((x,y)=>x+y,0);if(!T)return '<p class="mut">No d
  const R=92,r=54,C=100,n=h.filter(v=>v).length,P=(q,t)=>(C+q*Math.cos(t)).toFixed(2)+' '+(C+q*Math.sin(t)).toFixed(2);
  let a=-Math.PI/2,o='';
  h.forEach((v,i)=>{if(!v)return;const sp=v/T*2*Math.PI,a0=a;a+=sp;
-  if(n==1){o+=`<circle cx="${C}" cy="${C}" r="${(R+r)/2}" fill="none" stroke="${COL[i]}" stroke-width="${R-r}"/>`;return}
+  if(n==1){o+=`<circle cx="${C}" cy="${C}" r="${(R+r)/2}" fill="none" stroke="${col(i)}" stroke-width="${R-r}"/>`;return}
   const p=Math.max(.5,Math.min(5,sp*28)),g=5,Ro=R-p,Ri=r+p,d1=(p+g/2)/Ro,d2=(p+g/2)/Ri;
   if(a0+d1>=a-d1)return;
   const big=(a-d1)-(a0+d1)>Math.PI?1:0;
-  o+=`<path d="M${P(Ro,a0+d1)}A${Ro} ${Ro} 0 ${big} 1 ${P(Ro,a-d1)}L${P(Ri,a-d2)}A${Ri} ${Ri} 0 ${big} 0 ${P(Ri,a0+d2)}Z" fill="${COL[i]}" stroke="${COL[i]}" stroke-width="${2*p}" stroke-linejoin="round"/>`});
+  o+=`<path d="M${P(Ro,a0+d1)}A${Ro} ${Ro} 0 ${big} 1 ${P(Ro,a-d1)}L${P(Ri,a-d2)}A${Ri} ${Ri} 0 ${big} 0 ${P(Ri,a0+d2)}Z" fill="${col(i)}" stroke="${col(i)}" stroke-width="${2*p}" stroke-linejoin="round"/>`});
  return `<svg viewBox="0 0 200 200" style="width:100%;max-width:260px;display:block;margin:0 auto">${o}<text x="100" y="98" text-anchor="middle" font-size="26" font-weight="700" fill="var(--tx)">${T.toFixed(1)}h</text><text x="100" y="118" text-anchor="middle" font-size="11" fill="var(--mu)">logged</text></svg>`}
 function charts(){const I=info();if(!I)return '<div class="card"><p class="mut" style="margin:0">Nothing logged yet.</p></div>';
  const{s,cl,a}=I,mx=Math.max(...s.h);
- return `<div class="card"><h3>🥧 Where the time went</h3>${pie(s.h)}<div style="margin-top:10px">${cl.map(([i,h])=>`<div class="row" style="padding:4px 0"><span class="dot" style="background:${COL[i]}"></span><span class="grow" style="font-size:14px">${esc(cats[i].n)}</span><span style="font-size:14px">${dur(h)} · ${Math.round(h*4/s.n*100)}%</span></div>`).join('')}</div></div>
-<div class="card"><h3>📊 Hours per category</h3>${cl.map(([i,h])=>`<div class="row"><span style="width:104px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cats[i].n)}</span><div class="grow bar"><span style="width:${h/mx*100}%;background:${COL[i]}"></span></div><span style="width:38px;text-align:right;font-size:13px">${h.toFixed(1)}</span></div>`).join('')}</div>
+ return `<div class="card"><h3>🥧 Where the time went</h3>${pie(s.h)}<div style="margin-top:10px">${cl.map(([i,h])=>`<div class="row" style="padding:4px 0"><span class="dot" style="background:${col(i)}"></span><span class="grow" style="font-size:14px">${esc(cats[i].n)}</span><span style="font-size:14px">${dur(h)} · ${Math.round(h*4/s.n*100)}%</span></div>`).join('')}</div></div>
+<div class="card"><h3>📊 Hours per category</h3>${cl.map(([i,h])=>`<div class="row"><span style="width:104px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cats[i].n)}</span><div class="grow bar"><span style="width:${h/mx*100}%;background:${col(i)}"></span></div><span style="width:38px;text-align:right;font-size:13px">${h.toFixed(1)}</span></div>`).join('')}</div>
 <div class="card"><h3>🔎 Analysis</h3>${a.map(x=>`<p style="margin:6px 0;font-size:14px">${x}</p>`).join('')}<p class="mut" style="margin:10px 0 0">${s.xp} XP: ${verdict(s.xp)}</p></div>`}
 function summary(){const I=info();if(!I)return '';const{s,pct,bl,cl,a}=I;
  const dt=new Date(addDays(week,day)+'T00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
@@ -439,7 +468,7 @@ function filt(q){q=q.trim().toLowerCase();const L=cats.map((c,i)=>[i,c.n.toLower
 function stepCat(d){const v=[...document.querySelectorAll('.cg button')].map((b,k)=>b.style.display=='none'?-1:k).filter(k=>k>=0);if(!v.length)return;
  const p=v.indexOf(selCat);selCat=v[(p+d+v.length)%v.length];markCat()}
 function openSheet(i){sel=i;fs=i;const v=data.s[day+'-'+i],pv=prevOf(i),can=pv&&cats[pv[0]];selCat=v&&cats[v[0]]?v[0]:null;
- $('#sheet').innerHTML=`<div><h3 style="margin:0">${DN[day]}, ${tm(i)}</h3><p class="mut" style="margin:2px 0">What did you do in the 15 minutes before?</p><input id="tq" class="ta" type="text" placeholder="Type a category name…" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="cg">${cats.map((c,k)=>`<button tabindex="-1" data-act="cat" data-i="${k}" class="${k===selCat?'on':''}"><span class="dot" style="background:${COL[k]}"></span>${esc(c.n)}</button>`).join('')}</div><input id="act" type="text" placeholder="Note (optional)" value="${esc(v?v[1]||'':'')}"><select id="fill">${[0,1,2,3,4,5,6,7].map(n=>`<option value="${n}">${n?'Also fill the next '+n+' slot'+(n>1?'s':''):'This slot only'}</option>`).join('')}</select><button class="btn" data-act="ok">Save</button><button class="btn g" data-act="same" ${can?'':'disabled'}>Same as before${can?' ('+esc(cats[pv[0]].n)+')':''}</button><button class="btn g" data-act="clr">Clear</button><p class="mut kb">Enter saves · Esc closes · Tab next field · ↑↓ pick category</p></div>`;
+ $('#sheet').innerHTML=`<div><h3 style="margin:0">${DN[day]}, ${tm(i)}</h3><p class="mut" style="margin:2px 0">What did you do in the 15 minutes before?</p><input id="tq" class="ta" type="text" placeholder="Type a category name…" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="cg">${cats.map((c,k)=>`<button tabindex="-1" data-act="cat" data-i="${k}" class="${k===selCat?'on':''}"><span class="dot" style="background:${col(k)}"></span>${esc(c.n)}</button>`).join('')}</div><input id="act" type="text" placeholder="Note (optional)" value="${esc(v?v[1]||'':'')}"><select id="fill">${[0,1,2,3,4,5,6,7].map(n=>`<option value="${n}">${n?'Also fill the next '+n+' slot'+(n>1?'s':''):'This slot only'}</option>`).join('')}</select><button class="btn" data-act="ok">Save</button><button class="btn g" data-act="same" ${can?'':'disabled'}>Same as before${can?' ('+esc(cats[pv[0]].n)+')':''}</button><button class="btn g" data-act="clr">Clear</button><p class="mut kb">Enter saves · Esc closes · Tab next field · ↑↓ pick category</p></div>`;
  $('#sheet').classList.add('open');
  if(matchMedia('(hover:hover) and (pointer:fine)').matches)$('#tq').focus()}
 const closeSheet=()=>$('#sheet').classList.remove('open');
@@ -466,6 +495,8 @@ document.addEventListener('click',async e=>{
  else if(a=='signin'){offline=false;localStorage.removeItem('wtt:offline');render()}
  else if(a=='out'){await sb.auth.signOut()}
  else if(a=='mode'||a=='acc'||a=='tint'||a=='amo'){if(a=='mode')th.mode=b.dataset.m;else if(a=='acc')th.acc=i;else if(a=='tint')th.tint=!th.tint;else th.amo=!th.amo;ls('theme',th);applyTheme();render()}
+ else if(a=='rc'){cats.forEach(c=>delete c.c);saveCatsSoon();render()}
+ else if(a=='tslot'){nowSync();openSheet(i)}
  else if(a=='hgp'){hg.every=+b.dataset.m;ls('hg',hg);hgTick(true);render()}
  else if(a=='exp')exportDay();
  else if(a=='sd'){const w=user?' ('+user.email+')':'',hint=/does not exist|schema cache/i.test(lastErr)?' → run schema.sql in Supabase':'';
@@ -479,7 +510,7 @@ document.addEventListener('input',e=>{const t=e.target;
  if(t.id=='tq'){filt(t.value);return}
  if(t.dataset.plan!==undefined){data.p[day]=t.value;autoh(t);save()}
  else if(t.dataset.n!==undefined){const k=day+'-'+t.dataset.n,v=data.s[k];if(v)v[1]=t.value;else if(t.value)data.s[k]=[null,t.value];if(v&&v[0]===null&&!t.value)delete data.s[k];save()}
- else if(t.dataset.ci!==undefined){const c=cats[+t.dataset.ci],f=t.dataset.f;c[f]=f=='n'?t.value:f=='xp'?+t.value||0:t.checked?1:0;saveCats()}});
+ else if(t.dataset.ci!==undefined){const c=cats[+t.dataset.ci],f=t.dataset.f;c[f]=f=='n'?t.value:f=='c'?t.value:f=='xp'?+t.value||0:t.checked?1:0;saveCatsSoon()}});
 
 document.addEventListener('keydown',e=>{
  const t=e.target,tag=t.tagName;
@@ -500,7 +531,7 @@ document.addEventListener('keydown',e=>{
  if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js');
  if(sb){const{data:{session}}=await sb.auth.getSession();user=session?.user||null;
   sb.auth.onAuthStateChange((ev,s)=>{const id=s?.user?.id;if(id!==user?.id){user=s?.user||null;if(user)boot();else{if(ch){sb.removeChannel(ch);ch=null}render()}}})}
- buildNav();syncNav();
+ buildNav();syncNav();hgReady=true;
  setInterval(()=>hgTick(),1000);
  matchMedia('(min-width:1180px)').addEventListener('change',()=>render());
  {let ly=scrollY;addEventListener('scroll',()=>{const y=scrollY,d=y-ly;if(Math.abs(d)<6)return;ly=y;$('#nav').classList.toggle('mini',y>80&&d>0)},{passive:true})}
