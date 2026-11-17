@@ -45,9 +45,10 @@ textarea{min-height:110px;resize:vertical}
 .days .on{background:var(--ac);color:var(--on);box-shadow:0 3px 0 var(--acd)}
 .bar{height:10px;border-radius:9px;background:var(--sf2);overflow:hidden}
 .bar span{display:block;height:100%;background:var(--ac);border-radius:9px}
-.slot{display:grid;grid-template-columns:46px 120px minmax(0,1fr);align-items:center;gap:8px;border:2px solid transparent;border-radius:16px;margin:3px 0;padding:6px 12px;background:var(--sf)}
+.slot{display:grid;grid-template-columns:46px 120px minmax(0,1fr);align-items:center;gap:8px;border:2px solid color-mix(in srgb,var(--ac) 45%,transparent);border-radius:16px;margin:3px 0;padding:6px 12px;background:var(--sf)}
 .slot.has{background:color-mix(in srgb,var(--c) 20%,var(--sf));border-color:color-mix(in srgb,var(--c) 40%,transparent)}
 .slot.cur{border-color:var(--ac)}
+.slot.cur.has{border-color:var(--c)}
 .slot .t{color:var(--mu);font-size:13px}.slot .t.b{font-weight:700;color:var(--tx)}
 .cb{display:flex;align-items:center;gap:6px;border:0;background:none;color:var(--tx);font:500 14px Lexend;text-align:left;padding:0;cursor:pointer;min-width:0}
 .cb::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c,transparent);flex:none}
@@ -136,10 +137,12 @@ textarea{min-height:110px;resize:vertical}
 .hgcard{text-align:center}.hgcard h3{text-align:left}
 /* now / next trio (phones only) */
 .tri{display:none}
-.trow{display:grid;grid-template-columns:46px 44px minmax(0,1fr);align-items:center;gap:8px;text-align:left;width:100%;border:2px solid transparent;border-radius:18px;background:var(--sf);color:var(--tx);font:inherit;padding:9px 12px;min-height:58px;cursor:pointer}
+.trow{display:grid;grid-template-columns:46px 44px minmax(0,1fr);align-items:center;gap:8px;text-align:left;width:100%;border:2px solid color-mix(in srgb,var(--ac) 45%,transparent);border-radius:18px;background:var(--sf);color:var(--tx);font:inherit;padding:9px 12px;min-height:58px;cursor:pointer}
 .trow.has{background:color-mix(in srgb,var(--c) 20%,var(--sf));border-color:color-mix(in srgb,var(--c) 40%,transparent)}
 .trow.now{border-color:var(--ac);border-bottom-width:5px}
-.trow.off{opacity:.45;cursor:default}
+.trow.now.has{border-color:var(--c)}
+.trow.now.has .ttag{color:var(--tx)}
+.trow.off{opacity:.45;cursor:default;border-color:transparent}
 .ttag{font-size:11px;font-weight:700;color:var(--mu)}.trow.now .ttag{color:var(--ac)}
 .ttm{font-size:13px;color:var(--mu)}
 .tbd{min-width:0;display:flex;flex-direction:column}
