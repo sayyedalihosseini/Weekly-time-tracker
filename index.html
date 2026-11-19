@@ -12,7 +12,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Time Log">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon-192.png">
+<link rel="icon" href="icon.svg" type="image/svg+xml" sizes="any">
+<link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&display=swap" rel="stylesheet">
@@ -156,6 +157,11 @@ textarea{min-height:110px;resize:vertical}
 .cp::-webkit-color-swatch-wrapper{padding:0}
 .cp::-webkit-color-swatch{border:2px solid color-mix(in srgb,var(--tx) 25%,transparent);border-radius:50%}
 .cp::-moz-color-swatch{border:2px solid color-mix(in srgb,var(--tx) 25%,transparent);border-radius:50%}
+.rp{background:var(--bg);color:var(--tx);border:2px solid var(--bd);border-radius:16px;padding:12px 14px;margin:10px 0;max-height:36vh;overflow:auto;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word;user-select:text;-webkit-user-select:text}
+.rp.nw{white-space:pre;word-break:normal}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.two:has(:only-child){grid-template-columns:1fr}
+.hrw{display:grid;grid-template-columns:1fr auto auto;gap:12px;width:100%;text-align:left;border:2px solid transparent;border-radius:14px;background:var(--bg);color:var(--tx);font:500 14px Lexend;padding:10px 12px;margin:4px 0;cursor:pointer}
+.hrw.on{border-color:var(--ac)}.hrw span+span{color:var(--mu);font-weight:400;font-size:13px}
 </style>
 </head>
 <body>
@@ -269,7 +275,7 @@ function sub(){if(!sb||!user||ch)return;const f='user_id=eq.'+user.id;
   .subscribe(st=>{if(st=='SUBSCRIBED')flush().then(pull)})}
 let sct;function saveCatsSoon(){ls('cats',cats);ls('cd',1);clearTimeout(sct);sct=setTimeout(saveCats,600)}
 async function saveCats(){ls('cats',cats);ls('cd',1);if(sb&&user){const{error}=await sb.from('settings').upsert({user_id:user.id,cats,updated_at:new Date().toISOString()});if(!error)localStorage.removeItem('wtt:cd')}}
-async function loadWeek(){data=ls('w2:'+week)||{s:{},p:{}};base[week]=clone(data);render();loadCarry();await flush();pull()}
+async function loadWeek(){data=ls('w2:'+week)||{s:{},p:{}};base[week]=clone(data);render();loadCarry();await flush();pull();prefetchPrev()}
 async function boot(){
  if(sb&&user){
   const{data:r}=await sb.from('settings').select('cats').maybeSingle();if(ls('cd'))saveCats();else if(r){cats=r.cats;ls('cats',cats)}else saveCats();
@@ -279,7 +285,7 @@ async function boot(){
     Object.entries(d.s||{}).forEach(([key,v])=>{const[dd,i]=key.split('-').map(Number);q['s|'+w+'|'+key]={k:'s',w,d:dd,i,c:v[0],n:v[1]||''}});
     Object.entries(d.p||{}).forEach(([dd,t])=>{if(t)q['p|'+w+'|'+dd]={k:'p',w,d:+dd,t}})}
    ls('q',q);ls('uid',user.id)}
-  sub()}
+  sub();pushReports()}
  loadWeek()}
 function localCarry(){let t=0;
  for(let n=0;n<localStorage.length;n++){const k=localStorage.key(n);if(!k||!k.startsWith('wtt:w2:')||k.slice(7)>=week)continue;
@@ -359,13 +365,13 @@ function vToday(){const s=dayStats(day),pct=Math.round(s.n/64*100),cur=week==mon
  h+=`<div class="chips">${chip('XP today',s.xp,'⚡')}${chip('Focus',s.foc.toFixed(1)+' h','🎯')}</div>`;
  h+=`<div class="days">${DN.map((n,i)=>`<button class="${i==day?'on':''}" data-act="day" data-i="${i}">${n}</button>`).join('')}</div>`;
  h+=`<div class="bar"><span style="width:${pct}%"></span></div><p class="mut">${s.n}/64 slots logged, ${pct}%. ${verdict(s.xp)}</p>`;
- h+='<p class="mut kb" style="margin:-6px 0 10px">Keys: ↑↓ move · Enter log · S same as before · Del clear</p>';let L='';
+ h+='<p class="mut kb" style="margin:-6px 0 10px">Keys: ↑↓ move · Enter log · S same as before · Del clear · E report</p>';let L='';
  for(let g=0;g<16;g++){L+='<div class="hour">';
   for(let i=g*4;i<g*4+4;i++){const v=data.s[day+'-'+i],c=v&&cats[v[0]];
    L+=`<div data-act="slot" data-i="${i}" class="slot ${c?'has':''} ${i==cur?'cur':''} ${i===fs?'fs':''}" ${c?`style="--c:${col(v[0])}"`:''}><span class="t ${i%4==3?'b':''}">${tm(i)}</span><button class="cb" data-act="slot" data-i="${i}"><span class="cn ${c?'':'ph'}">${c?esc(c.n):'Category'}</span></button><input class="nt" type="text" maxlength="80" data-n="${i}" tabindex="-1" placeholder="Note" value="${v?esc(v[1]||''):''}"></div>`}
   L+='</div>'}
  const plan=`<section class="card plan ${planShut?'shut':''}"><div class="row"><h3 class="grow" style="margin:0">📋 Plan for today</h3><button class="pill pp" data-act="paste">Paste</button><button class="pill pt" data-act="pt">${planShut?'Show':'Hide'}</button></div><div class="pb"><textarea data-plan placeholder="Paste or write your plan for ${DN[day]}…">${esc(data.p[day]||'')}</textarea></div></section>`;
- h+=`<div class="dgrid"><aside>${plan}<div class="an">${charts()}</div></aside><main>${L}<button class="btn" data-act="exp">📤 Export day summary</button></main><aside class="hgcol">${hgCard()}</aside></div><button class="fab" data-act="an">📈 Day analysis</button>`;
+ h+=`<div class="dgrid"><aside>${plan}<div class="an">${charts()}</div></aside><main>${L}<button class="btn" data-act="exp">📤 Day report</button></main><aside class="hgcol">${hgCard()}</aside></div><button class="fab" data-act="an">📈 Day analysis</button>`;
  return h}
 
 function vWeek(){const W=weekStats(),tot=Math.max(0,carry+W.t.xp),lvl=Math.floor(tot/500)+1,into=tot%500;
@@ -438,20 +444,142 @@ function pie(h){const T=h.reduce((x,y)=>x+y,0);if(!T)return '<p class="mut">No d
   o+=`<path d="M${P(Ro,a0+d1)}A${Ro} ${Ro} 0 ${big} 1 ${P(Ro,a-d1)}L${P(Ri,a-d2)}A${Ri} ${Ri} 0 ${big} 0 ${P(Ri,a0+d2)}Z" fill="${col(i)}" stroke="${col(i)}" stroke-width="${2*p}" stroke-linejoin="round"/>`});
  return `<svg viewBox="0 0 200 200" style="width:100%;max-width:260px;display:block;margin:0 auto">${o}<text x="100" y="98" text-anchor="middle" font-size="26" font-weight="700" fill="var(--tx)">${T.toFixed(1)}h</text><text x="100" y="118" text-anchor="middle" font-size="11" fill="var(--mu)">logged</text></svg>`}
 function charts(){const I=info();if(!I)return '<div class="card"><p class="mut" style="margin:0">Nothing logged yet.</p></div>';
- const{s,cl,a}=I,mx=Math.max(...s.h);
+ const{s,cl}=I,RB=buildReport(week,day),a=RB?RB.analysis:I.a,mx=Math.max(...s.h);
  return `<div class="card"><h3>🥧 Where the time went</h3>${pie(s.h)}<div style="margin-top:10px">${cl.map(([i,h])=>`<div class="row" style="padding:4px 0"><span class="dot" style="background:${col(i)}"></span><span class="grow" style="font-size:14px">${esc(cats[i].n)}</span><span style="font-size:14px">${dur(h)} · ${Math.round(h*4/s.n*100)}%</span></div>`).join('')}</div></div>
 <div class="card"><h3>📊 Hours per category</h3>${cl.map(([i,h])=>`<div class="row"><span style="width:104px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cats[i].n)}</span><div class="grow bar"><span style="width:${h/mx*100}%;background:${col(i)}"></span></div><span style="width:38px;text-align:right;font-size:13px">${h.toFixed(1)}</span></div>`).join('')}</div>
 <div class="card"><h3>🔎 Analysis</h3>${a.map(x=>`<p style="margin:6px 0;font-size:14px">${x}</p>`).join('')}<p class="mut" style="margin:10px 0 0">${s.xp} XP: ${verdict(s.xp)}</p></div>`}
-function summary(){const I=info();if(!I)return '';const{s,pct,bl,cl,a}=I;
- const dt=new Date(addDays(week,day)+'T00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
- let o=`📅 ${dt}\n\n📊 Overview\n⚡ ${s.xp} XP (${verdict(s.xp)})\n🎯 Focus: ${dur(s.foc)}\n🗑️ Wasted: ${dur(s.waste)}\n📝 Logged: ${s.n}/64 slots (${pct}%)\n\n`;
- const pl=(data.p[day]||'').trim();if(pl)o+=`📋 Plan\n${pl}\n\n`;
- o+=`⏱️ Time by category\n${cl.map(([i,h])=>`${EM[i]||'🔹'} ${cats[i].n}: ${dur(h)} (${Math.round(h*4/s.n*100)}%)`).join('\n')}\n\n`;
- o+=`🗒️ Timeline\n${bl.map(b=>`${hm(480+15*b.s)}–${hm(495+15*b.e)} ${EM[b.c]||'🔹'} ${cats[b.c].n}${b.t?': '+b.t:''}`).join('\n')}\n\n`;
- return o+`🔎 Quick analysis\n${a.join('\n')}`}
-function exportDay(){const t=summary();if(!t)return toast('Nothing logged for this day yet');
- (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Summary copied'),()=>{
-  $('#sheet').innerHTML=`<div><h3 style="margin:0">Day summary</h3><textarea id="xt" style="min-height:260px">${esc(t)}</textarea><button class="btn" data-act="close">Done</button></div>`;$('#sheet').classList.add('open');$('#xt').select()})}
+// ---- day report: one model, four renderers, 30-day archive ----
+const RDAYS=30;
+const wkOf=s=>{const d=new Date(s+'T00:00'),k=(d.getDay()+6)%7;return[addDays(s,-k),k]};
+const weekData=w=>w==week?data:(ls('w2:'+w)||null);
+const r1=x=>Math.round(x*10)/10,sg=x=>(x>0?'+':x<0?'−':'±')+Math.abs(x),dm=m=>dur(m/60),mdc=s=>String(s).replace(/\|/g,'\\|');
+const fmtDate=s=>new Date(s+'T00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const fmtShort=s=>new Date(s+'T00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+const isoNow=()=>{const n=new Date(),p=x=>String(x).padStart(2,'0'),o=-n.getTimezoneOffset(),a=Math.abs(o);return n.getFullYear()+'-'+p(n.getMonth()+1)+'-'+p(n.getDate())+'T'+p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds())+(o<0?'-':'+')+p(a/60|0)+':'+p(a%60)};
+function dayCalc(dd,d){const sl=[];for(let i=0;i<64;i++){const v=dd&&dd.s[d+'-'+i];if(v&&cats[v[0]])sl.push({i,c:v[0],t:v[1]||''})}
+ let xp=0,foc=0,waste=0;sl.forEach(x=>{xp+=cats[x.c].xp;if(cats[x.c].f)foc++;if(x.c==cats.length-1)waste++});
+ return{sl,n:sl.length,xp,foc,waste}}
+function buildReport(w,d){const dd=weekData(w);if(!dd)return null;
+ const{sl,n,xp,foc,waste}=dayCalc(dd,d);if(!n)return null;
+ const date=addDays(w,d),L=cats.length-1,mn=k=>k*15,hrs=n/4,t0=i=>hm(480+15*i),t1=i=>hm(495+15*i);
+ // blocks = same category and note; runs = same category; focus and leak runs need adjacent slots
+ const blocks=[];let runs=0,sw=0,bf=0,cf=0,bfs=0,fst=0,bw=0,cw=0,bws=0,wst=0;
+ sl.forEach((x,k)=>{const p=sl[k-1],adj=!!p&&p.i==x.i-1,b=blocks[blocks.length-1];
+  if(b&&adj&&b.c==x.c&&b.t==x.t)b.e=x.i;else blocks.push({s:x.i,e:x.i,c:x.c,t:x.t});
+  if(!(adj&&p.c==x.c))runs++;
+  if(adj&&p.c!=x.c)sw++;
+  if(cats[x.c].f){cf=adj&&cats[p.c].f?cf+1:1;if(cf==1)fst=x.i;if(cf>bf){bf=cf;bfs=fst}}else cf=0;
+  if(x.c==L){cw=adj&&p.c==L?cw+1:1;if(cw==1)wst=x.i;if(cw>bw){bw=cw;bws=wst}}else cw=0});
+ const first=sl[0].i,last=sl[n-1].i,win=last-first+1,gaps=[];
+ for(let k=1;k<n;k++){const a=sl[k-1].i,b=sl[k].i;if(b-a>1)gaps.push({start:t0(a+1),end:t1(b-1),minutes:mn(b-a-1)})}
+ const lg=gaps.reduce((m,g)=>Math.max(m,g.minutes),0);
+ const cm=cats.map(()=>0);sl.forEach(x=>cm[x.c]++);
+ const categories=cm.map((c,i)=>[i,c]).filter(x=>x[1]).sort((a,b)=>b[1]-a[1]||a[0]-b[0]).map(([i,c])=>({idx:i,emoji:EM[i]||'🔹',name:cats[i].n,minutes:mn(c),pct:r1(c/n*100),xp:c*cats[i].xp,focus:!!cats[i].f}));
+ const hx={};sl.forEach(x=>{const h=(480+15*x.i)/60|0;hx[h]=(hx[h]||0)+cats[x.c].xp});
+ const hk=Object.keys(hx).map(Number),ph=hk.reduce((a,h)=>hx[h]>hx[a]?h:a,hk[0]);
+ const part=(a,b)=>{const q=sl.filter(x=>x.i>=a&&x.i<b);return{minutes:mn(q.length),xp:q.reduce((t,x)=>t+cats[x.c].xp,0),focus_min:mn(q.filter(x=>cats[x.c].f).length)}};
+ const periods={morning:part(0,16),afternoon:part(16,40),evening:part(40,64)};
+ const bs=[];for(let j=1;j<=7;j++){const[w2,d2]=wkOf(addDays(date,-j)),c=dayCalc(weekData(w2),d2);if(c.n>=16)bs.push(c)}
+ let cmp=null;if(bs.length>=2){const ax=bs.reduce((t,c)=>t+c.xp,0)/bs.length,af=bs.reduce((t,c)=>t+c.foc*15,0)/bs.length;
+  cmp={days:bs.length,xp_avg:Math.round(ax),xp_delta:Math.round(xp-ax),xp_delta_pct:ax?Math.round((xp-ax)/Math.abs(ax)*100):null,focus_avg_min:Math.round(af),focus_delta_min:Math.round(foc*15-af)}}
+ const lf=bf?{start:t0(bfs),end:t1(bfs+bf-1),minutes:mn(bf)}:null,lw=bw?{start:t0(bws),end:t1(bws+bw-1),minutes:mn(bw)}:null;
+ const spl=r1(sw/hrs),frag=spl<.8?'low':spl<=1.5?'moderate':'high',peak={start:hm(ph*60),end:hm(ph*60+60),xp:hx[ph]};
+ const metrics={xp,verdict:verdict(xp),xp_per_logged_hour:r1(xp/hrs),focus_min:mn(foc),focus_share_pct:r1(foc/n*100),longest_focus:lf,switches:sw,switches_per_hour:spl,fragmentation:frag,blocks:runs,mean_block_min:Math.round(mn(n)/runs),waste_min:mn(waste),waste_pct:r1(waste/n*100),longest_waste:lw,peak_hour:peak};
+ const coverage={logged_slots:n,total_slots:64,logged_pct:r1(n/64*100),first:t0(first),last:t1(last),window_pct:r1(n/win*100),gaps,longest_gap_min:lg};
+ const A=[],c0=categories[0];
+ A.push(`${c0.emoji} Largest share: ${c0.name}, ${dm(c0.minutes)} (${Math.round(c0.pct)}%).`);
+ A.push(lf?`🎯 Focus share ${Math.round(metrics.focus_share_pct)}%. Longest unbroken block: ${dm(lf.minutes)} (${lf.start}–${lf.end}).`:'🎯 No focus block recorded.');
+ A.push(`🔀 Fragmentation ${frag}: ${sw} switches (${spl}/h), mean block ${dm(metrics.mean_block_min)}.`);
+ A.push(waste?`🗑️ Time leak ${dm(mn(waste))} (${Math.round(metrics.waste_pct)}%)${lw?`, longest ${dm(lw.minutes)} at ${lw.start}`:''}.`:'✅ No time leak recorded.');
+ A.push(`⏰ Best hour: ${peak.start}–${peak.end} with ${peak.xp} XP.`);
+ if(cmp)A.push(`📈 Against the mean of the previous ${cmp.days} logged days: XP ${sg(cmp.xp_delta)}${cmp.xp_delta_pct!==null?` (${sg(cmp.xp_delta_pct)}%)`:''}, focus ${sg(cmp.focus_delta_min)} min.`);
+ if(gaps.length&&coverage.window_pct<90)A.push(`📝 ${gaps.length} unlogged gap${gaps.length>1?'s':''}: ${r1(100-coverage.window_pct)}% of the active window is missing, so totals are lower bounds.`);
+ A.push(frag=='high'?'💡 Next: group similar tasks to cut switches below 1.5/h.':waste>=4?`💡 Next: replace the leak window${lw?' at '+lw.start:''} with a planned task.`:foc<12?'💡 Next: add one uninterrupted focus block of 45 minutes or more.':'💡 Next: keep this structure.');
+ return{schema:'timelog-report/1',date,weekday:new Date(date+'T00:00').toLocaleDateString('en-GB',{weekday:'long'}),generated:isoNow(),
+  coverage,metrics,categories,periods,comparison:cmp,
+  blocks:blocks.map(b=>({start:t0(b.s),end:t1(b.e),minutes:mn(b.e-b.s+1),category:cats[b.c].n,idx:b.c,emoji:EM[b.c]||'🔹',note:b.t})),
+  slots:sl.map(x=>[x.i,cats[x.c].n,x.t,cats[x.c].xp,cats[x.c].f?1:0]),
+  plan:((dd.p&&dd.p[d])||'').trim(),analysis:A}}
+
+const PER=[['Morning 08–12','morning'],['Afternoon 12–18','afternoon'],['Evening 18–24','evening']];
+const METHOD='Method: XP = sum of XP per logged 15-min slot. Focus = slots in focus categories. Switch = category change between adjacent logged slots. Fragmentation bands (heuristic): below 0.8 low, 0.8 to 1.5 moderate, above 1.5 high switches per logged hour. Comparison = mean of up to 7 previous days with at least 16 logged slots.';
+const tlOf=m=>[...m.blocks,...m.coverage.gaps.map(g=>({...g,gap:1}))].sort((a,b)=>a.start<b.start?-1:a.start>b.start?1:0);
+function kv(m){const M=m.metrics,C=m.coverage,p=m.comparison,lf=M.longest_focus,r=[
+ ['⚡ XP',`${M.xp} (${M.verdict}), ${M.xp_per_logged_hour} per logged hour`],
+ ['🎯 Focus',`${dm(M.focus_min)}, ${Math.round(M.focus_share_pct)}% of logged time`+(lf?`; longest block ${dm(lf.minutes)} (${lf.start}–${lf.end})`:'')],
+ ['🔀 Switches',`${M.switches} (${M.switches_per_hour}/h, ${M.fragmentation}), ${M.blocks} blocks, mean ${dm(M.mean_block_min)}`],
+ ['🗑️ Time leak',`${dm(M.waste_min)}, ${Math.round(M.waste_pct)}% of logged time`],
+ ['📝 Coverage',`${C.logged_slots}/${C.total_slots} slots (${Math.round(C.logged_pct)}%), active ${C.first}–${C.last}, ${C.gaps.length} gap${C.gaps.length==1?'':'s'}`+(C.gaps.length?`, longest ${dm(C.longest_gap_min)}`:'')]];
+ if(p)r.push([`📈 vs previous ${p.days} logged days`,`XP ${sg(p.xp_delta)}`+(p.xp_delta_pct!==null?` (${sg(p.xp_delta_pct)}%)`:'')+`, focus ${sg(p.focus_delta_min)} min`]);
+ return r}
+function rText(m){const M=m.metrics,tot=m.categories.reduce((t,c)=>t+c.minutes,0),o=[`📅 ${fmtDate(m.date)}`,'','📊 Key metrics'];
+ kv(m).forEach(([k,v])=>o.push(`${k}: ${v}`));
+ o.push('','⏱️ Time by category');m.categories.forEach(c=>o.push(`${c.emoji} ${c.name}: ${dm(c.minutes)} · ${Math.round(c.pct)}% · ${c.xp} XP`));
+ o.push(`Σ ${dm(tot)} · ${M.xp} XP`,'','🕐 Time of day');
+ PER.forEach(([l,k])=>{const p=m.periods[k];o.push(`${l}: ${dm(p.minutes)} · ${p.xp} XP · focus ${dm(p.focus_min)}`)});
+ o.push(`Peak hour ${M.peak_hour.start}–${M.peak_hour.end}: ${M.peak_hour.xp} XP`,'','🗒️ Timeline');
+ tlOf(m).forEach(b=>o.push(b.gap?`⬜ ${b.start}–${b.end} unlogged (${dm(b.minutes)})`:`${b.start}–${b.end} (${dm(b.minutes)}) ${b.emoji} ${b.category}${b.note?': '+b.note:''}`));
+ if(m.plan)o.push('','📋 Plan',m.plan);
+ o.push('','🔎 Analysis',...m.analysis,'','🧪 '+METHOD,'Generated '+m.generated.slice(0,16).replace('T',' '));
+ return o.join('\n')}
+function rMd(m){const M=m.metrics,tot=m.categories.reduce((t,c)=>t+c.minutes,0),o=[`# 📅 ${fmtDate(m.date)}`,'','## 📊 Key metrics','','| Metric | Value |','|---|---|'];
+ kv(m).forEach(([k,v])=>o.push(`| ${k} | ${mdc(v)} |`));
+ o.push('','## ⏱️ Time by category','','| Category | Time | Share | XP |','|---|---:|---:|---:|');
+ m.categories.forEach(c=>o.push(`| ${c.emoji} ${mdc(c.name)} | ${dm(c.minutes)} | ${Math.round(c.pct)}% | ${c.xp} |`));
+ o.push(`| **Total** | **${dm(tot)}** | 100% | **${M.xp}** |`,'','## 🕐 Time of day','','| Period | Time | XP | Focus |','|---|---:|---:|---:|');
+ PER.forEach(([l,k])=>{const p=m.periods[k];o.push(`| ${l} | ${dm(p.minutes)} | ${p.xp} | ${dm(p.focus_min)} |`)});
+ o.push('',`Peak hour: ${M.peak_hour.start}–${M.peak_hour.end} (${M.peak_hour.xp} XP)`,'','## 🗒️ Timeline','','| Time | Duration | Category | Note |','|---|---:|---|---|');
+ tlOf(m).forEach(b=>o.push(b.gap?`| ${b.start}–${b.end} | ${dm(b.minutes)} | ⬜ unlogged | |`:`| ${b.start}–${b.end} | ${dm(b.minutes)} | ${b.emoji} ${mdc(b.category)} | ${mdc(b.note)} |`));
+ if(m.plan)o.push('','## 📋 Plan','',...m.plan.split('\n').map(l=>'> '+l));
+ o.push('','## 🔎 Analysis','',...m.analysis.map(a=>'- '+a),'','---','','*'+METHOD+'*','','*Generated '+m.generated.slice(0,16).replace('T',' ')+'*');
+ return o.join('\n')}
+function rCsv(m){const q=s=>'"'+String(s).replace(/"/g,'""')+'"';
+ return ['date,slot_start,slot_end,category,note,xp,focus',...m.slots.map(([i,c,t,x,f])=>[m.date,hm(480+15*i),hm(495+15*i),q(c),q(t),x,f].join(','))].join('\n')}
+function rJson(m){const pub={...m,slots:m.slots.map(([i,c,t,x,f])=>({start:hm(480+15*i),end:hm(495+15*i),category:c,note:t,xp:x,focus:!!f}))};
+ return JSON.stringify(pub,(k,v)=>k=='emoji'||k=='idx'?undefined:v,2)}
+
+// ---- report sheet ----
+const FMT={text:['Text','txt','text/plain',rText],md:['Markdown','md','text/markdown',rMd],csv:['CSV','csv','text/csv',rCsv],json:['JSON','json','application/json',rJson]};
+const RP={fmt:ls('rfmt')||'text',snap:null,m:null};
+if(!FMT[RP.fmt])RP.fmt='text';
+const rtext=()=>RP.m?FMT[RP.fmt][3](RP.m):'Nothing logged for this day yet. Pick a saved report below.';
+function copyText(t){return(navigator.clipboard?navigator.clipboard.writeText(t).then(()=>true):Promise.reject()).catch(()=>{try{const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0;font-size:16px';document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();return ok}catch(e){return false}})}
+function dlText(){const m=RP.m;if(!m)return;const f=FMT[RP.fmt],blob=new Blob([(RP.fmt=='csv'?'﻿':'')+rtext()],{type:f[2]+';charset=utf-8'}),a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);a.download='timelog-'+m.date+'.'+f[1];document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
+function rSheet(){const m=RP.m,h=Object.entries(ls('reports')||{}).sort((a,b)=>b[0].localeCompare(a[0]));
+ $('#sheet').innerHTML=`<div><div class="row"><h3 class="grow" style="margin:0">📤 Day report</h3><button class="pill" data-act="close">Close</button></div>
+<p class="mut" style="margin:4px 0 10px">${m?esc(fmtDate(m.date))+(RP.snap?' · saved copy':''):'No data for this day'}</p>
+<div class="seg">${Object.entries(FMT).map(([k,v])=>`<button class="${RP.fmt==k?'on':''}" data-act="rfmt" data-k="${k}">${v[0]}</button>`).join('')}</div>
+<pre class="rp ${RP.fmt=='csv'?'nw':''}">${esc(rtext())}</pre>
+<button class="btn" data-act="rcopy" ${m?'':'disabled'}>Copy ${FMT[RP.fmt][0]}</button>
+<div class="two"><button class="btn g" data-act="rdl" ${m?'':'disabled'}>Download</button>${navigator.share?'<button class="btn g" data-act="rsh">Share</button>':''}</div>
+${RP.snap?'<button class="btn g" data-act="rlive">Back to this day</button>':''}
+<h3 style="margin:16px 0 2px">🗄️ Last ${RDAYS} days</h3><p class="mut" style="margin:0 0 6px">A report is saved when you export it and kept for ${RDAYS} days. Saved reports sync between your devices.</p>
+${h.length?h.map(([d,e])=>`<button class="hrw ${RP.snap==d?'on':''}" data-act="rview" data-d="${d}"><span>${fmtShort(d)}</span><span>${e.m.metrics.xp} XP</span><span>${dm(e.m.metrics.focus_min)} focus</span></button>`).join(''):'<p class="mut">No saved reports yet.</p>'}</div>`;
+ $('#sheet').classList.add('open')}
+function openReport(){const m=buildReport(week,day);if(!m&&!Object.keys(ls('reports')||{}).length)return toast('Nothing logged for this day yet');
+ RP.snap=null;RP.m=m;
+ if(m){saveReport(m);copyText(rtext()).then(ok=>ok&&toast('Copied as '+FMT[RP.fmt][0]))}
+ rSheet();pullReports().then(ch=>{if(ch&&$('#sheet').classList.contains('open'))rSheet()})}
+
+// ---- 30-day archive (local + Supabase table "reports") ----
+const todayIso=()=>iso(new Date()),rCut=()=>addDays(todayIso(),-RDAYS);
+function pruneReports(){const r=ls('reports')||{},c=rCut();let ch=false;Object.keys(r).forEach(k=>{if(k<c){delete r[k];ch=true}});if(ch)ls('reports',r);return r}
+function saveReport(m){const r=pruneReports();r[m.date]={m,u:new Date().toISOString()};ls('reports',r);const d=ls('rdirty')||[];if(!d.includes(m.date))d.push(m.date);ls('rdirty',d);pushReports()}
+async function pushReports(){if(!sb||!user)return;const d=ls('rdirty')||[];if(!d.length)return;const r=ls('reports')||{};
+ const rows=d.filter(k=>r[k]).map(k=>({user_id:user.id,report_date:k,model:r[k].m,updated_at:r[k].u}));
+ try{if(rows.length){const{error}=await sb.from('reports').upsert(rows);if(error)return}
+  ls('rdirty',(ls('rdirty')||[]).filter(k=>!d.includes(k)))}catch(e){}}
+async function pullReports(){if(!sb||!user)return false;const c=rCut();
+ try{const{data:rows,error}=await sb.from('reports').select('report_date,model,updated_at').gte('report_date',c);if(error||!rows)return false;
+  const r=pruneReports(),dirty=ls('rdirty')||[];let ch=false;
+  rows.forEach(x=>{const l=r[x.report_date];if(dirty.includes(x.report_date))return;if(!l||Date.parse(x.updated_at)>Date.parse(l.u)){r[x.report_date]={m:x.model,u:x.updated_at};ch=true}});
+  if(ch)ls('reports',r);
+  sb.from('reports').delete().lt('report_date',c).then(()=>{},()=>{});
+  return ch}catch(e){return false}}
+async function prefetchPrev(){if(!sb||!user)return;const pw=addDays(week,-7);if(Object.values(ls('q')||{}).some(o=>o.w==pw))return;
+ try{const[a,b]=await Promise.all([sb.from('slots').select('day,slot,cat,note').eq('week_start',pw),sb.from('plans').select('day,text').eq('week_start',pw)]);
+  if(a.error||b.error)return;const s={},p={};a.data.forEach(r=>s[r.day+'-'+r.slot]=[r.cat,r.note||'']);b.data.forEach(r=>p[r.day]=r.text||'');ls('w2:'+pw,{s,p})}catch(e){}}
 
 let fs=null;
 const prevOf=i=>i>0?data.s[day+'-'+(i-1)]:(day>0?data.s[(day-1)+'-63']:null);
@@ -501,7 +629,13 @@ document.addEventListener('click',async e=>{
  else if(a=='rc'){cats.forEach(c=>delete c.c);saveCatsSoon();render()}
  else if(a=='tslot'){nowSync();openSheet(i)}
  else if(a=='hgp'){hg.every=+b.dataset.m;ls('hg',hg);hgTick(true);render()}
- else if(a=='exp')exportDay();
+ else if(a=='exp')openReport();
+ else if(a=='rfmt'){RP.fmt=b.dataset.k;ls('rfmt',RP.fmt);rSheet()}
+ else if(a=='rcopy')copyText(rtext()).then(ok=>toast(ok?'Copied as '+FMT[RP.fmt][0]:'Copy blocked. Select the text and copy it.'))
+ else if(a=='rdl')dlText();
+ else if(a=='rsh')navigator.share({title:'Day report '+RP.m.date,text:rtext()}).catch(()=>{});
+ else if(a=='rview'){const e=(ls('reports')||{})[b.dataset.d];if(e){RP.m=e.m;RP.snap=b.dataset.d;rSheet()}}
+ else if(a=='rlive'){RP.snap=null;RP.m=buildReport(week,day);rSheet()}
  else if(a=='sd'){const w=user?' ('+user.email+')':'',hint=/does not exist|schema cache/i.test(lastErr)?' → run schema.sql in Supabase':'';
   toast({loc:'Local only: not signed in. Data stays on this device.',ok:'Synced'+w,wait:'Sending changes…'+w,err:'Sync error: '+lastErr+hint+w}[syncSt]||syncSt,8000)}
  else if(a=='pt'){planShut=!planShut;render()}
@@ -527,6 +661,7 @@ document.addEventListener('keydown',e=>{
  const mob=matchMedia('(max-width:759px)').matches,mv={ArrowDown:mob?4:1,ArrowUp:mob?-4:-1,ArrowRight:mob?1:0,ArrowLeft:mob?-1:0}[e.key];
  if(mv){e.preventDefault();moveFs(mv)}
  else if(e.key=='Enter'&&fs!==null&&tag!='BUTTON'){e.preventDefault();openSheet(fs)}
+ else if(e.key=='e'||e.key=='E'){e.preventDefault();openReport()}
  else if((e.key=='s'||e.key=='S')&&fs!==null){e.preventDefault();sameAs(fs,0)}
  else if((e.key=='Delete'||e.key=='Backspace')&&fs!==null){e.preventDefault();delete data.s[day+'-'+fs];save();render();scrollFs()}
 });
@@ -534,14 +669,14 @@ document.addEventListener('keydown',e=>{
  if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js');
  if(sb){const{data:{session}}=await sb.auth.getSession();user=session?.user||null;
   sb.auth.onAuthStateChange((ev,s)=>{const id=s?.user?.id;if(id!==user?.id){user=s?.user||null;if(user)boot();else{if(ch){sb.removeChannel(ch);ch=null}render()}}})}
- buildNav();syncNav();hgReady=true;
+ buildNav();syncNav();hgReady=true;pruneReports();
  setInterval(()=>hgTick(),1000);
  matchMedia('(min-width:1180px)').addEventListener('change',()=>render());
  {let ly=scrollY;addEventListener('scroll',()=>{const y=scrollY,d=y-ly;if(Math.abs(d)<6)return;ly=y;$('#nav').classList.toggle('mini',y>80&&d>0)},{passive:true})}
  let cm=monday();
  const wake=()=>{if(document.hidden)return;
   if(monday()!=cm){const old=cm;cm=monday();if(week==old){week=cm;day=todayIdx();loadWeek();return}}
-  hgTick();flush().then(pull)};
+  hgTick();pushReports();flush().then(pull)};
  document.addEventListener('visibilitychange',wake);addEventListener('online',wake);addEventListener('focus',wake);
  if(sb&&!user&&!offline)render();else boot();
 })();
