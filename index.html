@@ -178,6 +178,13 @@ textarea{min-height:110px;resize:vertical}
 .ct.em{flex:0 0 34px;padding:0;display:flex;align-items:center;justify-content:center}
 .ct.em b{color:var(--mu);font-size:24px;font-weight:400;line-height:1}
 #cn,#cd{width:100%;box-sizing:border-box;font-size:16px;margin-bottom:8px}
+.dots{display:grid;grid-template-columns:repeat(auto-fill,14px);justify-content:space-between;gap:9px 4px;margin-top:16px}
+.dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--ac);box-sizing:border-box}
+.dots i.f{background:var(--ac)}
+.dots i.c{box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 28%,transparent)}
+.dc h3{white-space:nowrap}.dv{white-space:nowrap;color:var(--mu);font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+@media(min-width:760px){.wgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-top:12px}.wgrid .card{margin:0}.wgrid .chips{grid-column:1/-1;grid-template-columns:repeat(4,1fr);margin:0}.wgrid .wide{grid-column:1/-1}}
+@media(min-width:1180px){.wgrid{grid-template-columns:repeat(3,minmax(0,1fr))}.wgrid .yr{grid-column:span 2}.wgrid .dbd{grid-row:span 2}.wgrid .mp{grid-column:span 2}}
 </style>
 </head>
 <body>
@@ -422,21 +429,30 @@ function vToday(){const s=dayStats(day),pct=Math.round(s.n/64*100),cur=week==mon
  h+=`<div class="dgrid"><aside>${plan}<div class="an"><div class="pieL">${charts('pie')}</div>${charts('rest')}</div></aside><main>${L}<button class="btn" data-act="exp">📤 Day report</button></main><aside class="hgcol">${hgCard()}${charts('pie')}</aside></div><button class="fab" data-act="an">📈 Day analysis</button>`;
  return h}
 
+function dotsCard(t,right,total,done,cur,foot){let d='';for(let i=0;i<total;i++)d+=`<i class="${i<done?'f':i==cur?'f c':''}"></i>`;
+ return `<div class="card dc"><div class="row"><h3 class="grow" style="margin:0">${t}</h3><span class="dv">${right}</span></div><div class="dots">${d}</div><p class="mut" style="margin:12px 0 0">${foot}</p></div>`}
+function isoWeek(n){const d=new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())),k=d.getUTCDay()||7;d.setUTCDate(d.getUTCDate()+4-k);const y=d.getUTCFullYear();return[y,Math.ceil(((d-Date.UTC(y,0,1))/864e5+1)/7)]}
+function weeksIn(y){const j=new Date(Date.UTC(y,0,1)).getUTCDay(),leap=(y%4==0&&y%100!=0)||y%400==0;return j==4||(leap&&j==3)?53:52}
+function timeCards(){const n=new Date(),dim=new Date(n.getFullYear(),n.getMonth()+1,0).getDate(),dd=n.getDate(),[wy,wk]=isoWeek(n),wt=weeksIn(wy);
+ const mn=n.toLocaleDateString('en-GB',{month:'long'});
+ return dotsCard('This month',(dim-dd)+(dim-dd==1?' day left':' days left'),dim,dd-1,dd-1,mn+': day '+dd+' of '+dim)+
+  dotsCard('This year',(wt-wk)+(wt-wk==1?' week left':' weeks left'),wt,wk-1,wk-1,wy+': week '+wk+' of '+wt).replace('card dc','card dc yr')}
 function vWeek(){const W=weekStats(),tot=Math.max(0,carry+W.t.xp),lvl=Math.floor(tot/500)+1,into=tot%500;
  let bd=0;W.days.forEach((s,i)=>{if(s.xp>W.days[bd].xp)bd=i});
  const st=W.pct>=85?'Excellent tracking week':W.pct>=60?'Good, keep the chain going':W.pct>=30?'Warming up':'Getting started';
  const lt=W.t.n?Math.round(W.t.waste*4/W.t.n*100):0;
- let h=head('Week',range(),1);
+ let h=head('Week',range(),1)+'<div class="wgrid">';
  h+=`<div class="chips">${chip('XP this week',W.t.xp,'⚡')}${chip('Level','LV '+lvl,'🏆')}${chip('Focus',W.t.foc.toFixed(1)+' h','🎯')}${chip('Best streak',W.streak+' d','🔥')}</div>`;
  h+=`<div class="card"><div class="bar"><span style="width:${into/5}%"></span></div><p class="mut" style="margin-bottom:0">${500-into} XP to level ${lvl+1}. All-time: ${tot} XP (${carry} carried in from earlier weeks).</p></div>`;
  h+=`<div class="card"><div class="row"><span class="grow">Week logged</span><b>${W.pct}%</b></div><div class="bar"><span style="width:${W.pct}%"></span></div><p class="mut" style="margin-bottom:0">${st}. Best day: ${W.t.xp?DN[bd]+' ('+W.days[bd].xp+' XP)':'none yet'}. Time leak: ${W.t.waste.toFixed(1)} h (${lt}%).</p></div>`;
- h+=`<div class="card"><h3>Day by day</h3>${W.days.map((s,i)=>`<div class="row"><span style="width:36px">${DN[i]}</span><div class="grow bar"><span style="width:${Math.round(s.n/64*100)}%"></span></div><span style="width:70px;text-align:right;font-size:14px">${s.xp} XP ${s.n>=48?'✓':''}</span></div>`).join('')}</div>`;
+ h+=timeCards();
+ h+=`<div class="card dbd"><h3>Day by day</h3>${W.days.map((s,i)=>`<div class="row"><span style="width:36px">${DN[i]}</span><div class="grow bar"><span style="width:${Math.round(s.n/64*100)}%"></span></div><span style="width:70px;text-align:right;font-size:14px">${s.xp} XP ${s.n>=48?'✓':''}</span></div>`).join('')}</div>`;
  h+=`<div class="card"><h3>🥧 Week: where the time went</h3>${pie(W.t.h)}</div>`;
  h+=`<div class="card"><h3>📚 Daily mix</h3>${W.days.map((s,i)=>`<div class="row"><span style="width:36px">${DN[i]}</span><div class="grow bar" style="display:flex">${s.h.map((v,k)=>v?`<span style="width:${v/16*100}%;background:${col(k)};border-radius:0"></span>`:'').join('')}</div><span style="width:44px;text-align:right;font-size:14px">${(s.n/4).toFixed(1)}h</span></div>`).join('')}</div>`;
  const mx=Math.max(.25,...W.t.h);
  h+=`<div class="card"><h3>Hours by category</h3>${cats.map((c,i)=>W.t.h[i]?`<div class="row"><span class="dot" style="background:${col(i)}"></span><span style="width:112px;font-size:14px">${esc(c.n)}</span><div class="grow bar"><span style="width:${W.t.h[i]/mx*100}%;background:${col(i)}"></span></div><span style="width:44px;text-align:right;font-size:14px">${W.t.h[i].toFixed(1)}</span></div>`:'').join('')||'<p class="mut">Nothing logged yet.</p>'}</div>`;
  let m='';for(let i=0;i<64;i++)for(let d=0;d<7;d++){const v=data.s[d+'-'+i];m+=v&&cats[v[0]]?`<u style="background:${col(v[0])}"></u>`:'<u></u>'}
- h+=`<div class="card"><h3>Week map</h3><div class="map">${m}</div></div>`;
+ h+=`<div class="card wide mp"><h3>Week map</h3><div class="map">${m}</div></div></div>`;
  return h}
 
 function vSetup(){let h=head('Setup','Appearance, hourglass, categories, account')+vTheme()+vHgSet();
@@ -459,7 +475,7 @@ function render(){normData();
  syncNav();
  if(sb&&!user&&!offline){$('#app').innerHTML='<div class="narrow">'+vAuth()+'</div>';return}
  const y=scrollY;
- $('#app').innerHTML=(b=>tab=='today'?b:`<div class="narrow">${b}</div>`)(({today:vToday,week:vWeek,glass:vGlassPage,setup:vSetup})[tab]());
+ $('#app').innerHTML=(b=>tab=='today'||tab=='week'?b:`<div class="narrow">${b}</div>`)(({today:vToday,week:vWeek,glass:vGlassPage,setup:vSetup})[tab]());
  document.querySelectorAll('textarea[data-plan]').forEach(autoh);
  hgTick();
  scrollTo(0,y)}
