@@ -170,15 +170,13 @@ textarea{min-height:110px;resize:vertical}
 .dlb{grid-column:1/-1;height:6px;border-radius:99px;background:color-mix(in srgb,var(--ac,#888) 16%,transparent);overflow:hidden}
 .dlb u{display:block;height:100%;border-radius:99px;background:var(--ac,#888);transition:width .6s}
 .dlr.past{opacity:.45}
-.chips.tc{grid-template-columns:auto 1fr;align-items:stretch}
-.chips.tc .chip{padding:14px 16px}
-.ctr{display:flex;gap:4px;background:var(--sf);border-radius:24px;padding:8px;min-width:0;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none}.ctr::-webkit-scrollbar{display:none}
-.ct{flex:0 0 auto;min-width:78px;scroll-snap-align:start;border:0;background:transparent;color:var(--tx);border-radius:18px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;font-family:inherit;cursor:pointer}
-.ct+.ct{box-shadow:-1px 0 0 var(--bd)}
-.ct b{font-size:26px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
-.ct small{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;white-space:nowrap}
-.ct span{font-size:11px;font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px}
-.ct.em b{color:var(--mu);font-weight:400}
+.chips.tc{display:flex;flex-wrap:wrap;gap:8px}
+.chips.tc .chip{flex:0 0 auto;padding:12px 14px}
+.ct{flex:1 1 58px;min-width:0;position:relative;background:var(--sf);color:var(--tx);border:0;border-radius:24px;padding:12px 14px;min-height:84px;text-align:left;font-family:inherit;cursor:pointer;display:block}
+.ct small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;color:var(--mu);font-size:12px;line-height:1.2;min-height:2.4em;overflow:hidden;overflow-wrap:break-word;hyphens:auto}
+.ct b{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+.ct.em{flex:0 0 34px;padding:0;display:flex;align-items:center;justify-content:center}
+.ct.em b{color:var(--mu);font-size:24px;font-weight:400;line-height:1}
 #cn,#cd{width:100%;box-sizing:border-box;font-size:16px;margin-bottom:8px}
 </style>
 </head>
@@ -307,10 +305,8 @@ async function loadCtr(){if(!(sb&&user))return;try{const{data:r,error}=await sb.
  if(ls('ctd'))saveCtr();else if(r&&Array.isArray(r.counters)){ctr=nc(r.counters);ls('ctr',ctr);renderSoft()}}catch(x){}}
 const dayNum=d=>{const[y,m,k]=d.split('-').map(Number);return Math.round(Date.UTC(y,m-1,k)/864e5)};
 const todayNum=()=>{const n=new Date();return Math.round(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/864e5)};
-function ctrCard(){return '<div class="ctr">'+ctr.map((c,i)=>{
- const df=dayNum(c.d)-todayNum(),n=Math.abs(df),till=c.m!='past';
- const lb=df==0?'Today':till?(df>0?(n==1?'Day left':'Days left'):(n==1?'Day over':'Days over')):(df<=0?(n==1?'Day ago':'Days ago'):(n==1?'Day to go':'Days to go'));
- return `<button class="ct" data-act="ctr" data-i="${i}"><b>${n}</b><small>${lb}</small><span>${esc(c.n||'')}</span></button>`}).join('')+`<button class="ct em" data-act="ctr" data-i="${ctr.length}" aria-label="Add day counter"><b>+</b><small>${ctr.length?'Add':'Add counter'}</small></button></div>`}
+function ctrCard(){return ctr.map((c,i)=>{const df=dayNum(c.d)-todayNum(),v=c.m=='past'?-df:df;
+ return `<button class="ct" data-act="ctr" data-i="${i}"><small>${esc(c.n||'Counter')}</small><b>${v}</b></button>`}).join('')+`<button class="ct em" data-act="ctr" data-i="${ctr.length}" aria-label="Add day counter"><b>+</b></button>`}
 function ctrSheet(i){CS=i;const isNew=i>=ctr.length,c=ctr[i]||{n:'',d:'',m:'till'};CM=c.m=='past'?'past':'till';
  $('#sheet').innerHTML=`<div><div class="row"><h3 class="grow" style="margin:0">📅 ${isNew?'New day counter':'Day counter'}</h3><button class="pill" data-act="close">Close</button></div>
 <p class="mut" style="margin:4px 0 10px">Name it, pick a date, choose how to count.</p>
