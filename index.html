@@ -163,11 +163,11 @@ textarea{min-height:110px;resize:vertical}
 .hrw{display:grid;grid-template-columns:1fr auto auto;gap:12px;width:100%;text-align:left;border:2px solid transparent;border-radius:14px;background:var(--bg);color:var(--tx);font:500 14px Lexend;padding:10px 12px;margin:4px 0;cursor:pointer}
 .hrw.on{border-color:var(--ac)}.hrw span+span{color:var(--mu);font-weight:400;font-size:13px}
 .nt,#act,#tq,[data-plan],.set input[type=text]{text-transform:uppercase}
-.dl{margin-top:16px;display:flex;flex-direction:column;gap:10px;text-align:left;width:100%}
-.dlr{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:baseline}
-.dln{font-size:14px;font-weight:600}.dln small{font-weight:500;margin-left:4px}
-.dlv{font-size:18px;font-variant-numeric:tabular-nums}
-.dlb{grid-column:1/-1;height:8px;border-radius:99px;background:color-mix(in srgb,var(--ac,#888) 18%,transparent);overflow:hidden}
+.dl{margin-top:18px;padding-top:14px;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:14px;text-align:left;width:100%}
+.dlr{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:baseline}
+.dln{font-size:13px;font-weight:600;letter-spacing:.02em;white-space:nowrap}
+.dlv{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.dlb{grid-column:1/-1;height:6px;border-radius:99px;background:color-mix(in srgb,var(--ac,#888) 16%,transparent);overflow:hidden}
 .dlb u{display:block;height:100%;border-radius:99px;background:var(--ac,#888);transition:width .6s}
 .dlr.past{opacity:.45}
 </style>
@@ -354,8 +354,8 @@ const HGSVG=`<svg viewBox="0 0 160 240" aria-hidden="true"><defs><clipPath id="h
 <path class="go" d="${TOPP}"/><path class="go" d="${BOTP}"/>
 <path class="hl" d="M42,34C42,64 60,84 72,100"/><path class="hl" d="M118,206C118,176 100,156 88,140"/>
 <rect class="pl" x="20" y="6" width="120" height="18" rx="9"/><rect class="pl" x="20" y="216" width="120" height="18" rx="9"/></svg>`;
-const DLT=[['Noon',12,'🌤️'],['End of work',17,'💼'],['End of day',24,'🌙']];
-const DLH='<div class="dl">'+DLT.map(([n,h,e])=>`<div class="dlr" data-h="${h}"><span class="dln">${e} ${n} <small class="mut">${String(h%24).padStart(2,'0')}:00</small></span><b class="dlv">--</b><i class="dlb"><u></u></i></div>`).join('')+'</div>';
+const DLT=[['Noon',12,'🌤️'],['Work',17,'💼'],['Day',24,'🌙']];
+const DLH='<div class="dl">'+DLT.map(([n,h,e])=>`<div class="dlr" data-h="${h}"><span class="dln">${e} ${n}</span><b class="dlv">--</b><i class="dlb"><u></u></i></div>`).join('')+'</div>';
 function dlPaint(){const n=new Date(),m=n.getHours()*60+n.getMinutes()+n.getSeconds()/60;
  document.querySelectorAll('.dlr').forEach(r=>{const T=+r.dataset.h*60,left=T-m,f=Math.min(1,Math.max(0,(m-480)/(T-480))),v=r.querySelector('.dlv');
   const x=left<=0?'passed':left<60?Math.ceil(left)+' min':Math.floor(left/60)+' h '+String(Math.floor(left%60)).padStart(2,'0')+' min';
