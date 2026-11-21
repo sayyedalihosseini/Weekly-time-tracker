@@ -182,7 +182,7 @@ const col=i=>(cats[i]&&cats[i].c)||COL[i]||'#888';
 const DEF=[['Deep Work',15,1],['Study',12,1],['Job Search',12,1],['Meetings/Class',8,1],['Admin',5,0],['Exercise',10,0],['Social',5,0],['Meals',3,0],['Rest',3,0],['Leisure',2,0],['Commute',1,0],['Wasted',-5,0]];
 const ls=(k,v)=>v===undefined?(()=>{try{return JSON.parse(localStorage.getItem('wtt:'+k))}catch(e){return null}})():localStorage.setItem('wtt:'+k,JSON.stringify(v));
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const LAT=s=>String(s).toUpperCase().replace(/[^\x20-\x7E\n\r\t\u00C0-\u024F]/g,'');
+const LAT=s=>String(s).toUpperCase().replace(/[^\x20-\x7E\n\r\t\u00C0-\u024F\p{Extended_Pictographic}\u200D\uFE0F\u20E3\u{1F1E6}-\u{1F1FF}\u{1F3FB}-\u{1F3FF}]/gu,'');
 function normData(){let ch=0;for(const k in data.s){const v=data.s[k];if(v&&v[1]){const n=LAT(v[1]);if(n!==v[1]){v[1]=n;ch=1}}}
  for(const k in data.p){const n=LAT(data.p[k]||'');if(n!==data.p[k]){data.p[k]=n;ch=1}}
  if(ch)save();let cc=0;cats.forEach(c=>{const n=LAT(c.n);if(n!==c.n){c.n=n;cc=1}});if(cc)saveCatsSoon()}
