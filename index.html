@@ -170,6 +170,16 @@ textarea{min-height:110px;resize:vertical}
 .dlb{grid-column:1/-1;height:6px;border-radius:99px;background:color-mix(in srgb,var(--ac,#888) 16%,transparent);overflow:hidden}
 .dlb u{display:block;height:100%;border-radius:99px;background:var(--ac,#888);transition:width .6s}
 .dlr.past{opacity:.45}
+.chips.tc{grid-template-columns:auto 1fr;align-items:stretch}
+.chips.tc .chip{padding:14px 16px}
+.ctr{display:flex;gap:4px;background:var(--sf);border-radius:24px;padding:8px;min-width:0;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none}.ctr::-webkit-scrollbar{display:none}
+.ct{flex:0 0 auto;min-width:78px;scroll-snap-align:start;border:0;background:transparent;color:var(--tx);border-radius:18px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;font-family:inherit;cursor:pointer}
+.ct+.ct{box-shadow:-1px 0 0 var(--bd)}
+.ct b{font-size:26px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.ct small{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;white-space:nowrap}
+.ct span{font-size:11px;font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px}
+.ct.em b{color:var(--mu);font-weight:400}
+#cn,#cd{width:100%;box-sizing:border-box;font-size:16px;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -193,7 +203,7 @@ const LAT=s=>String(s).toUpperCase().replace(/[^\x20-\x7E\n\r\t\u00C0-\u024F\p{E
 function normData(){let ch=0;for(const k in data.s){const v=data.s[k];if(v&&v[1]){const n=LAT(v[1]);if(n!==v[1]){v[1]=n;ch=1}}}
  for(const k in data.p){const n=LAT(data.p[k]||'');if(n!==data.p[k]){data.p[k]=n;ch=1}}
  if(ch)save();let cc=0;cats.forEach(c=>{const n=LAT(c.n);if(n!==c.n){c.n=n;cc=1}});if(cc)saveCatsSoon()}
-const LATSEL='.nt,#act,#tq,[data-plan],input[data-f="n"]';
+const LATSEL='.nt,#act,#tq,#cn,[data-plan],input[data-f="n"]';
 document.addEventListener('input',e=>{const t=e.target;if(!t.matches||!t.matches(LATSEL))return;const v=t.value,n=LAT(v);
  if(n!==v){const p=t.selectionStart,d=v.length-n.length;t.value=n;try{t.setSelectionRange(Math.max(0,p-d),Math.max(0,p-d))}catch(x){}}},true);
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -286,14 +296,35 @@ function sub(){if(!sb||!user||ch)return;const f='user_id=eq.'+user.id;
  ch=sb.channel('wtt-'+user.id)
   .on('postgres_changes',{event:'*',schema:'public',table:'slots',filter:f},p=>onRT('s',p))
   .on('postgres_changes',{event:'*',schema:'public',table:'plans',filter:f},p=>onRT('p',p))
-  .on('postgres_changes',{event:'*',schema:'public',table:'settings',filter:f},p=>{if(p.new&&p.new.cats){cats=p.new.cats;ls('cats',cats);renderSoft()}})
+  .on('postgres_changes',{event:'*',schema:'public',table:'settings',filter:f},p=>{if(p.new&&p.new.cats&&!ls('cd')){cats=p.new.cats;ls('cats',cats)}if(p.new&&Array.isArray(p.new.counters)&&!ls('ctd')){ctr=nc(p.new.counters);ls('ctr',ctr)}renderSoft()})
   .subscribe(st=>{if(st=='SUBSCRIBED')flush().then(pull)})}
 let sct;function saveCatsSoon(){ls('cats',cats);ls('cd',1);clearTimeout(sct);sct=setTimeout(saveCats,600)}
 async function saveCats(){ls('cats',cats);ls('cd',1);if(sb&&user){const{error}=await sb.from('settings').upsert({user_id:user.id,cats,updated_at:new Date().toISOString()});if(!error)localStorage.removeItem('wtt:cd')}}
+const nc=a=>Array.isArray(a)?a.filter(x=>x&&x.d):[];
+let ctr=nc(ls('ctr')),CS=null,CM='till';
+async function saveCtr(){ls('ctr',ctr);ls('ctd',1);if(sb&&user){const{error}=await sb.from('settings').update({counters:ctr,updated_at:new Date().toISOString()}).eq('user_id',user.id);if(!error)localStorage.removeItem('wtt:ctd')}}
+async function loadCtr(){if(!(sb&&user))return;try{const{data:r,error}=await sb.from('settings').select('counters').maybeSingle();if(error)return;
+ if(ls('ctd'))saveCtr();else if(r&&Array.isArray(r.counters)){ctr=nc(r.counters);ls('ctr',ctr);renderSoft()}}catch(x){}}
+const dayNum=d=>{const[y,m,k]=d.split('-').map(Number);return Math.round(Date.UTC(y,m-1,k)/864e5)};
+const todayNum=()=>{const n=new Date();return Math.round(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/864e5)};
+function ctrCard(){return '<div class="ctr">'+ctr.map((c,i)=>{
+ const df=dayNum(c.d)-todayNum(),n=Math.abs(df),till=c.m!='past';
+ const lb=df==0?'Today':till?(df>0?(n==1?'Day left':'Days left'):(n==1?'Day over':'Days over')):(df<=0?(n==1?'Day ago':'Days ago'):(n==1?'Day to go':'Days to go'));
+ return `<button class="ct" data-act="ctr" data-i="${i}"><b>${n}</b><small>${lb}</small><span>${esc(c.n||'')}</span></button>`}).join('')+`<button class="ct em" data-act="ctr" data-i="${ctr.length}" aria-label="Add day counter"><b>+</b><small>${ctr.length?'Add':'Add counter'}</small></button></div>`}
+function ctrSheet(i){CS=i;const isNew=i>=ctr.length,c=ctr[i]||{n:'',d:'',m:'till'};CM=c.m=='past'?'past':'till';
+ $('#sheet').innerHTML=`<div><div class="row"><h3 class="grow" style="margin:0">📅 ${isNew?'New day counter':'Day counter'}</h3><button class="pill" data-act="close">Close</button></div>
+<p class="mut" style="margin:4px 0 10px">Name it, pick a date, choose how to count.</p>
+<input id="cn" type="text" maxlength="20" placeholder="Name" autocomplete="off" value="${esc(c.n||'')}">
+<input id="cd" type="date" value="${esc(c.d||'')}">
+<div class="seg" style="margin:10px 0"><button data-act="cmode" data-m="till" class="${CM=='till'?'on':''}">Days until</button><button data-act="cmode" data-m="past" class="${CM=='past'?'on':''}">Days since</button></div>
+<button class="btn" data-act="csave">Save</button>${isNew?'':'<button class="btn g" data-act="cdel" style="margin-top:10px">Remove</button>'}</div>`;
+ $('#sheet').classList.add('open')}
+function ctrSave(){const d=$('#cd').value;if(!d)return toast('Pick a date first');const o={n:LAT($('#cn').value).trim(),d,m:CM};if(CS>=ctr.length)ctr.push(o);else ctr[CS]=o;saveCtr();closeSheet();render()}
 async function loadWeek(){data=ls('w2:'+week)||{s:{},p:{}};base[week]=clone(data);render();loadCarry();await flush();pull();prefetchPrev()}
 async function boot(){
  if(sb&&user){
   const{data:r}=await sb.from('settings').select('cats').maybeSingle();if(ls('cd'))saveCats();else if(r){cats=r.cats;ls('cats',cats)}else saveCats();
+  loadCtr();
   if(ls('uid')!=user.id){ // first time this device meets this account: upload what is stored locally (adds only)
    const q=ls('q')||{};
    for(let n=0;n<localStorage.length;n++){const k=localStorage.key(n);if(!k.startsWith('wtt:w2:'))continue;const w=k.slice(7),d=JSON.parse(localStorage[k]);
@@ -383,7 +414,7 @@ const autoh=t=>{t.style.height='auto';if(t.scrollHeight)t.style.height=t.scrollH
 addEventListener('resize',()=>document.querySelectorAll('textarea[data-plan]').forEach(autoh));
 function vToday(){const s=dayStats(day),pct=Math.round(s.n/64*100),cur=week==monday()&&day==todayIdx()?curSlot():-1;
  let h=head('Today',DN[day]+' '+fmt(addDays(week,day))+' · week of '+fmt(week),1);
- h+=`<div class="chips">${chip('XP today',s.xp,'⚡')}${chip('Focus',s.foc.toFixed(1)+' h','🎯')}</div>`;
+ h+=`<div class="chips tc">${chip('XP today',s.xp,'')}${ctrCard()}</div>`;
  h+=`<div class="days">${DN.map((n,i)=>`<button class="${i==day?'on':''}" data-act="day" data-i="${i}">${n}</button>`).join('')}</div>`;
  h+=`<div class="bar"><span style="width:${pct}%"></span></div><p class="mut">${s.n}/64 slots logged, ${pct}%. ${verdict(s.xp)}</p>`;
  h+='<p class="mut kb" style="margin:-6px 0 10px">Keys: ↑↓ move · Enter log · S same as before · Del clear · E report</p>';let L='';
@@ -623,7 +654,7 @@ function openSheet(i){sel=i;fs=i;const v=data.s[day+'-'+i],pv=prevOf(i),can=pv&&
  $('#sheet').innerHTML=`<div><h3 style="margin:0">${DN[day]}, ${tm(i)}</h3><p class="mut" style="margin:2px 0">What did you do in the 15 minutes before?</p><input id="tq" class="ta" type="text" placeholder="Type a category name…" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="cg">${cats.map((c,k)=>`<button tabindex="-1" data-act="cat" data-i="${k}" class="${k===selCat?'on':''}"><span class="dot" style="background:${col(k)}"></span>${esc(c.n)}</button>`).join('')}</div><input id="act" type="text" placeholder="Note (optional)" value="${esc(v?v[1]||'':'')}"><select id="fill">${[0,1,2,3,4,5,6,7].map(n=>`<option value="${n}">${n?'Also fill the next '+n+' slot'+(n>1?'s':''):'This slot only'}</option>`).join('')}</select><button class="btn" data-act="ok">Save</button><button class="btn g" data-act="same" ${can?'':'disabled'}>Same as before${can?' ('+esc(cats[pv[0]].n)+')':''}</button><button class="btn g" data-act="clr">Clear</button><p class="mut kb">Enter saves · Esc closes · Tab next field · ↑↓ pick category</p></div>`;
  $('#sheet').classList.add('open');
  if(matchMedia('(hover:hover) and (pointer:fine)').matches)$('#tq').focus()}
-const closeSheet=()=>$('#sheet').classList.remove('open');
+const closeSheet=()=>{CS=null;$('#sheet').classList.remove('open')};
 
 async function auth(k){const email=$('#em').value.trim(),password=$('#pw').value;
  if(!email||password.length<6){$('#msg').textContent='Enter your email and a password (at least 6 characters).';return}
@@ -661,6 +692,10 @@ document.addEventListener('click',async e=>{
   toast({loc:'Local only: not signed in. Data stays on this device.',ok:'Synced'+w,wait:'Sending changes…'+w,err:'Sync error: '+lastErr+hint+w}[syncSt]||syncSt,8000)}
  else if(a=='pt'){planShut=!planShut;render()}
  else if(a=='an'){$('#sheet').innerHTML=`<div><div class="row"><h3 class="grow" style="margin:0">📈 Day analysis</h3><button class="pill" data-act="close">Close</button></div>${charts()}</div>`;$('#sheet').classList.add('open')}
+ else if(a=='ctr')ctrSheet(+b.dataset.i)
+ else if(a=='cmode'){CM=b.dataset.m;document.querySelectorAll('[data-act=cmode]').forEach(x=>x.classList.toggle('on',x.dataset.m==CM))}
+ else if(a=='csave')ctrSave()
+ else if(a=='cdel'){ctr.splice(CS,1);saveCtr();closeSheet();render()}
  else if(a=='close')closeSheet();
  else if(a=='paste'){try{const t=await navigator.clipboard.readText();if(t){const ta=$('[data-plan]');ta.value=ta.value?ta.value+'\n'+LAT(t):LAT(t);data.p[day]=ta.value;autoh(ta);save()}}catch(x){toast('Paste blocked. Long-press the box and paste.')}}
 });
@@ -674,7 +709,7 @@ document.addEventListener('keydown',e=>{
  const t=e.target,tag=t.tagName;
  if($('#sheet').classList.contains('open')){
   if(e.key=='Escape'){e.preventDefault();closeSheet();return}
-  if(e.key=='Enter'&&(tag=='INPUT'||tag=='SELECT')){e.preventDefault();doSave();return}
+  if(e.key=='Enter'&&(tag=='INPUT'||tag=='SELECT')){e.preventDefault();CS!==null?ctrSave():doSave();return}
   if(t.id=='tq'&&(e.key=='ArrowDown'||e.key=='ArrowUp')){e.preventDefault();stepCat(e.key=='ArrowDown'?1:-1)}
   return}
  if(tab!='today'||!document.querySelector('.slot')||e.metaKey||e.ctrlKey||e.altKey)return;
