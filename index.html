@@ -208,7 +208,7 @@ textarea{min-height:110px;resize:vertical}
 .hcn i{flex:none;width:9px;height:9px;border-radius:50%}
 .hc b{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}.hc small{text-align:right;color:var(--mu);font-size:12px}
 .hc .bar{height:8px}
-@media(min-width:760px){.wgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch;margin-top:12px}.wgrid .card{margin:0}.wgrid .chips{grid-column:1/-1;grid-template-columns:repeat(4,1fr);gap:16px;margin:0}.wgrid .w-hc,.wgrid .w-mp{grid-column:1/-1}}
+@media(min-width:760px){.wgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch;margin-top:12px}.wgrid .card{margin:0}.wgrid .chips{grid-column:1/-1;grid-template-columns:repeat(4,1fr);gap:16px;margin:0}.wgrid .w-hc,.wgrid .w-mp,.wgrid .w-rp{grid-column:1/-1}}
 @media(min-width:1180px){.wgrid{grid-template-columns:repeat(4,minmax(0,1fr))}.wgrid .w-lv,.wgrid .w-lg{grid-column:span 1}.wgrid .dc{grid-column:span 2}.wgrid .yr{grid-column:1/-1}.wgrid .w-hc,.wgrid .w-mp{grid-column:span 2}}
 @media(min-width:1600px){.wgrid .w-hc{grid-column:span 1}.wgrid .w-mp{grid-column:span 3}}
 .hab,.todo{padding-bottom:10px}
@@ -622,7 +622,7 @@ document.addEventListener('input',e=>{const t=e.target;if(!t.classList)return;
  else if(t.classList.contains('ptx')){const P=getP();P[t.dataset.k]=t.value;setP(P)}});
 document.addEventListener('paste',e=>{const t=e.target;if(!t||!t.classList||!t.classList.contains('pin'))return;const x=(e.clipboardData||window.clipboardData).getData('text');
  if(!/\n/.test(String(x).trim()))return;e.preventDefault();pAdd(t.dataset.sec,x);render();const n=document.querySelector('.pin[data-sec="'+t.dataset.sec+'"]');if(n)n.focus()});
-async function loadWeek(){data=ls('w2:'+week)||{s:{},p:{}};base[week]=clone(data);render();loadCarry();await flush();await pull();applyTpl();prefetchPrev()}
+async function loadWeek(){data=ls('w2:'+week)||{s:{},p:{}};base[week]=clone(data);render();loadCarry();await flush();await pull();applyTpl();prefetchPrev().then(()=>{if(tab=='week')renderSoft()})}
 async function boot(){
  if(sb&&user){
   const{data:r}=await sb.from('settings').select('cats').maybeSingle();if(ls('cd'))saveCats();else if(r){cats=r.cats;ls('cats',cats)}else saveCats();
@@ -736,13 +736,34 @@ function timeCards(){const n=new Date(),dim=new Date(n.getFullYear(),n.getMonth(
  const mn=n.toLocaleDateString('en-GB',{month:'long'});
  return dotsCard('This month',(dim-dd)+(dim-dd==1?' day left':' days left'),dim,dd-1,dd-1,mn+': day '+dd+' of '+dim)+
   dotsCard('This year',(wt-wk)+(wt-wk==1?' week left':' weeks left'),wt,wk-1,wk-1,wy+': week '+wk+' of '+wt).replace('wc dc','wc dc yr')}
+// ---- weekly report: ready from Monday 00:00 for the week that just ended ----
+let wrOpen=false;
+function weekReport(w){const dd=weekData(w);if(!dd)return null;const days=[0,1,2,3,4,5,6].map(d=>dayCalc(dd,d)),n=days.reduce((a,c)=>a+c.n,0);if(!n)return'';
+ const h=cats.map(()=>0);days.forEach(c=>c.sl.forEach(x=>h[x.c]++));const foc=days.reduce((a,c)=>a+c.foc,0),wst=days.reduce((a,c)=>a+c.waste,0),P=(a,b)=>b?Math.round(a/b*100):0;
+ let bd=0;days.forEach((c,i)=>{if(c.foc>days[bd].foc)bd=i});const we=addDays(w,6);
+ const o=[`📅 Week ${fmt(w)} – ${fmt(we)} ${we.slice(0,4)}`,'','📊 Key metrics',
+  `🎯 Focus: ${dm(foc*15)}, ${P(foc,n)}% of logged time`,`🗑️ Time leak: ${dm(wst*15)}, ${P(wst,n)}% of logged time`,
+  `📝 Logged: ${dm(n*15)}, ${P(n,448)}% of the week`,`🏆 Best focus day: ${DN[bd]} (${dm(days[bd].foc*15)})`,'','⏱️ Time by category'];
+ cats.map((c,i)=>[i,h[i]]).filter(x=>x[1]).sort((a,b)=>b[1]-a[1]).forEach(([i,v])=>o.push(`${EM[i]||'•'} ${cats[i].n}: ${dm(v*15)} · ${P(v,n)}%`));
+ o.push(`Σ ${dm(n*15)}`,'','📆 Day by day');days.forEach((c,i)=>o.push(`${DN[i]}: ${dm(c.n*15)} logged · focus ${dm(c.foc*15)}`));
+ const H=liveH();if(H.length){o.push('','✅ Habits');H.forEach(x=>{let k=0;for(let d=0;d<7;d++)if(hDone(x.id,addDays(w,d)))k++;o.push(`${k==7?'🟢':k>=4?'🟡':'🔴'} ${x.name}: ${k}/7`)})}
+ const T=todos.filter(x=>!x.del&&x.done_at&&iso(new Date(x.done_at))>=w&&iso(new Date(x.done_at))<=we);
+ if(T.length){o.push('',`📝 Tasks done: ${T.length}`);T.forEach(x=>o.push('🟢 '+x.text))}
+ const st=[0,0,0,0];for(let d=0;d<7;d++){const r=dd.p&&dd.p[d];if(!isP(r))continue;try{const Q=fixP(JSON.parse(r.slice(PFX.length)));SECS.forEach(([k])=>Q.sec[k].forEach(it=>st[itStat(it)]++))}catch(e){}}
+ if(st.some(Boolean))o.push('',`📋 Plan items: ${st[2]} done · ${st[3]} failed · ${st[1]} in progress · ${st[0]} not started`);
+ return o.join('\n')}
+function weekRepCard(){const cur=week==monday(),w=cur?addDays(week,-7):week<monday()?week:null;if(!w)return'';
+ const t=weekReport(w),title=cur?"📤 Last week's report":"📤 Week report";
+ const body=t===null?'<p class="mut" style="margin:0">Loading last week…</p>':!t?'<p class="mut" style="margin:0">Nothing was logged that week.</p>':
+  `<div class="row" style="gap:8px;padding:0"><button class="btn" style="margin:0;flex:1" data-act="wrc" data-w="${w}">📋 Copy report</button><button class="btn g" style="margin:0;width:auto;padding:16px 20px" data-act="wrt">${wrOpen?'Hide':'Show'}</button></div>${wrOpen?`<pre class="rp">${esc(t)}</pre>`:''}`;
+ return wcard('w-rp',title,fmt(w)+' – '+fmt(addDays(w,6)),body,cur?'Ready since Monday 00:00. Copy it any time this week.':'')}
 const wcard=(cls,t,r,body,foot)=>`<section class="card wc ${cls}"><div class="wch"><h3>${t}</h3>${r!==''&&r!=null?`<span class="wcv">${r}</span>`:''}</div>${body}${foot?`<p class="wcf">${foot}</p>`:''}</section>`;
 function vWeek(){const W=weekStats(),tot=Math.max(0,carry+W.t.xp),lvl=Math.floor(tot/500)+1,into=tot%500;
  let bd=0;W.days.forEach((s,i)=>{if(s.xp>W.days[bd].xp)bd=i});
  const st=W.pct>=85?'Excellent tracking':W.pct>=60?'Good, keep the chain going':W.pct>=30?'Warming up':'Getting started';
  const lt=W.t.n?Math.round(W.t.waste*4/W.t.n*100):0,ti=week==monday()?todayIdx():-1;
  let h=head('Week',range(),1)+'<div class="wgrid">';
- h+=`<div class="chips">${chip('XP this week',W.t.xp,'⚡')}${chip('Level','LV '+lvl,'🏆')}${chip('Focus',W.t.foc.toFixed(1)+' h','🎯')}${chip('Best streak',W.streak+' d','🔥')}</div>`;
+ h+=`<div class="chips">${chip('XP this week',W.t.xp,'⚡')}${chip('Level','LV '+lvl,'🏆')}${chip('Focus',W.t.foc.toFixed(1)+' h','🎯')}${chip('Best streak',W.streak+' d','🔥')}</div>`+weekRepCard();
  h+=wcard('w-lv','Level progress',`LV ${lvl} → ${lvl+1}`,`<div class="bar"><span style="width:${into/5}%"></span></div>`,`${500-into} XP to go · ${tot} XP all-time`);
  h+=wcard('w-lg','Week logged',W.pct+'%',`<div class="bar"><span style="width:${W.pct}%"></span></div>`,`${st} · ${W.t.n}/448 slots · best day ${W.t.xp?DN[bd]:'–'} · leak ${W.t.waste.toFixed(1)} h (${lt}%)`);
  h+=timeCards();
@@ -1027,6 +1048,8 @@ document.addEventListener('click',async e=>{
  else if(a=='ppick'){pAddTodo(b.dataset.sec,b.dataset.id);render();pickSheet(b.dataset.sec)}
  else if(a=='pimp')impSheet()
  else if(a=='pimpok'){const v=$('#pimpt').value;if(v.trim()){setP(parsePlanText(v));closeSheet();render();toast('Plan imported')}}
+ else if(a=='wrc'){const t=weekReport(b.dataset.w);if(t)copyText(t).then(ok=>toast(ok===false?'Copy failed':'Week report copied'))}
+ else if(a=='wrt'){wrOpen=!wrOpen;render()}
  else if(a=='ctr')ctrSheet(+b.dataset.i)
  else if(a=='cmode'){CM=b.dataset.m;document.querySelectorAll('[data-act=cmode]').forEach(x=>x.classList.toggle('on',x.dataset.m==CM))}
  else if(a=='csave')ctrSave()
