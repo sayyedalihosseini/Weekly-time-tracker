@@ -175,7 +175,7 @@ textarea{min-height:110px;resize:vertical}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.two:has(:only-child){grid-template-columns:1fr}
 .hrw{display:grid;grid-template-columns:1fr auto auto;gap:12px;width:100%;text-align:left;border:2px solid transparent;border-radius:14px;background:var(--bg);color:var(--tx);font:500 14px Lexend;padding:10px 12px;margin:4px 0;cursor:pointer}
 .hrw.on{border-color:var(--ac)}.hrw span+span{color:var(--mu);font-weight:400;font-size:13px}
-.nt,#act,#tq,[data-plan],#ptpl,.addin,#hn,#hin,#tn,.set input[type=text]{text-transform:uppercase}
+.nt,#act,#tq,[data-plan],#ptpl,.pit,.pin,.ptx,#pimpt,.addin,#hn,#hin,#tn,.set input[type=text]{text-transform:uppercase}
 .addin::placeholder,#hin::placeholder,#hn::placeholder,#tn::placeholder{text-transform:none}
 .dl{margin-top:18px;padding-top:14px;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:14px;text-align:left;width:100%}
 .dlr{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:baseline}
@@ -248,6 +248,35 @@ textarea{min-height:110px;resize:vertical}
 .hs.on span{color:var(--mu);text-decoration:line-through}
 .hir{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid color-mix(in srgb,var(--bd) 70%,transparent)}.hir span{flex:1;min-width:0}
 .hir .pill{padding:6px 11px}
+.pc .wch h3{font-size:19px}
+.slg{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;font-size:11px;color:var(--mu);margin:2px 0 4px}.slg span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}.slg .st{width:11px;height:11px;border-width:2px;cursor:default}
+.pc .wch{align-items:center;gap:8px}.pc .wch h3{flex:none}.pc .wch .pill{padding:6px 12px;font-size:13px}
+@media(max-width:759px){.c-th{display:none}.pc .wch h3{font-size:17px}.pc .wch .pill{padding:5px 10px;font-size:12px}}
+.ps{margin:10px 0 0;padding:10px 12px 8px;border-radius:16px;background:var(--bg);border:2px dashed transparent;transition:border-color .15s,background .15s}
+body.dragging .ps{border-color:color-mix(in srgb,var(--ac) 35%,transparent)}
+.ps.hl{border-color:var(--ac)!important;background:color-mix(in srgb,var(--ac) 10%,var(--bg))}
+.psh{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--mu);text-transform:uppercase;margin-bottom:2px}
+.psh .pill{padding:4px 10px;font-size:12px;font-weight:500;letter-spacing:0;text-transform:none}
+.pi{display:grid;grid-template-columns:auto 22px minmax(0,1fr) 24px;align-items:center;gap:6px;padding:1px 0}
+.pdg{cursor:grab;color:var(--mu);font-size:14px;user-select:none;-webkit-user-select:none;opacity:.45;width:12px}.pi:hover .pdg{opacity:1}
+@media(hover:none){.pdg{display:none}.pi{grid-template-columns:22px minmax(0,1fr) 24px}}
+.st{width:20px;height:20px;border-radius:50%;border:2.5px solid color-mix(in srgb,var(--mu) 70%,transparent);background:transparent;padding:0;cursor:pointer;display:inline-block;flex:none;transition:transform .15s}
+.st:active{transform:scale(.8)}
+.st.s1{border-color:#eab308;background:radial-gradient(circle,#eab308 0 38%,transparent 42%)}
+.st.s2{border-color:#22c55e;background:#22c55e}
+.st.s3{border-color:#ef4444;background:#ef4444}
+.pit{width:100%;border:0!important;background:transparent!important;color:var(--tx);font:inherit;font-size:14px;padding:6px 4px!important;margin:0!important;border-radius:8px!important;text-align:left;min-width:0}
+.pit:focus{outline:0;background:var(--sf)!important}
+button.pit{cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}button.pit small{margin-left:6px;opacity:.7}
+.pi.s2 .pit{color:var(--mu);text-decoration:line-through}.pi.s3 .pit{color:var(--mu)}
+.px{border:0;background:none;color:var(--mu);font-size:18px;line-height:1;cursor:pointer;opacity:.35;padding:0}.pi:hover .px,.px:focus{opacity:1}
+@media(hover:none){.px{opacity:.6}}
+.pin{margin:2px 0 0!important;padding:6px 8px!important;font-size:14px!important;border:1.5px dashed color-mix(in srgb,var(--bd) 90%,transparent)!important;background:transparent!important;border-radius:10px!important}
+.pin::placeholder{text-transform:none}
+.ptl{display:block;font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin:14px 0 0}
+.ptx{margin-top:6px!important;padding:10px 12px!important;font-size:14px!important}
+.td[draggable=true]{cursor:grab}
+@media(max-width:759px){.pit,.pin,.ptx{font-size:16px!important}}
 </style>
 </head>
 <body>
@@ -269,9 +298,9 @@ const ls=(k,v)=>v===undefined?(()=>{try{return JSON.parse(localStorage.getItem('
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const LAT=s=>String(s).toUpperCase().replace(/[^\x20-\x7E\n\r\t\u00C0-\u024F\p{Extended_Pictographic}\u200D\uFE0F\u20E3\u{1F1E6}-\u{1F1FF}\u{1F3FB}-\u{1F3FF}]/gu,'');
 function normData(){let ch=0;for(const k in data.s){const v=data.s[k];if(v&&v[1]){const n=LAT(v[1]);if(n!==v[1]){v[1]=n;ch=1}}}
- for(const k in data.p){const n=LAT(data.p[k]||'');if(n!==data.p[k]){data.p[k]=n;ch=1}}
+ for(const k in data.p){if(typeof isP=='function'&&isP(data.p[k]))continue;const n=LAT(data.p[k]||'');if(n!==data.p[k]){data.p[k]=n;ch=1}}
  if(ch)save();let cc=0;cats.forEach(c=>{const n=LAT(c.n);if(n!==c.n){c.n=n;cc=1}});if(cc)saveCatsSoon()}
-const LATSEL='.nt,#act,#tq,#cn,#ptpl,.addin,#hn,#hin,#tn,[data-plan],input[data-f="n"]';
+const LATSEL='.nt,#act,#tq,#cn,#ptpl,.pit,.pin,.ptx,#pimpt,.addin,#hn,#hin,#tn,[data-plan],input[data-f="n"]';
 document.addEventListener('input',e=>{const t=e.target;if(!t.matches||!t.matches(LATSEL))return;const v=t.value,n=LAT(v);
  if(n!==v){const p=t.selectionStart,d=v.length-n.length;t.value=n;try{t.setSelectionRange(Math.max(0,p-d),Math.max(0,p-d))}catch(x){}}},true);
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -393,7 +422,7 @@ let ptpl=ls('ptpl')||'';
 async function savePtpl(){ls('ptpl',ptpl);ls('ptpd',1);if(sb&&user){const{error}=await sb.from('settings').update({plan_tpl:ptpl,updated_at:new Date().toISOString()}).eq('user_id',user.id);if(!error)localStorage.removeItem('wtt:ptpd')}}
 async function loadPtpl(){if(!(sb&&user))return;try{const{data:r,error}=await sb.from('settings').select('plan_tpl').maybeSingle();if(error)return;
  if(ls('ptpd'))savePtpl();else if(r&&typeof r.plan_tpl=='string'){ptpl=r.plan_tpl;ls('ptpl',ptpl)}}catch(x){}}
-function applyTpl(){if(!ptpl.trim()||week!=monday())return;const t=iso(new Date());if(ls('ptday')===t)return;
+function applyTpl(){return;if(!ptpl.trim()||week!=monday())return;const t=iso(new Date());if(ls('ptday')===t)return;
  if((data.p[todayIdx()]||'').trim()){ls('ptday',t);return}
  data.p[todayIdx()]=ptpl;ls('ptday',t);save();renderSoft()}
 const vPlanSet=()=>`<div class="card"><h3>📋 Daily plan template</h3><p class="mut" style="margin:0 0 4px">This text fills the plan box at the start of each day, if the plan is empty. Leave it empty to turn this off.</p><textarea id="ptpl" rows="6" placeholder="1. MAIN GOAL&#10;2. SECOND GOAL&#10;3. MUST DO">${esc(ptpl)}</textarea></div>`;
@@ -472,7 +501,7 @@ function dueTag(d){if(!d)return'';const t=tday(),y=d<t,tm=addDays(t,1);
  return `<em class="due ${y?'o':d==t?'t':''}">${l}</em>`}
 function tRow(x,dn){const its=hItems(x),nd=its.filter(i=>i.d).length;
  const sub=its.length&&!dn?`<div class="hsl">${its.map(it=>`<button class="hs ${it.d?'on':''}" data-act="tsub" data-id="${x.id}" data-i="${it.id}"><i></i><span>${esc(it.n)}</span></button>`).join('')}</div>`:'';
- return `<div class="td ${dn?'dn':''}"><button class="tck" data-act="tck" data-id="${x.id}" aria-label="${dn?'Mark not done':'Mark done'}"></button><button class="tt" data-act="ted" data-id="${x.id}"><span>${esc(x.text)}</span>${dn?'':dueTag(x.due)}${its.length&&!dn?`<em class="due">☑ ${nd}/${its.length}</em>`:''}</button>${sub}</div>`}
+ return `<div class="td ${dn?'dn':''}" ${dn?'':`draggable="true" data-tid="${x.id}"`}><button class="tck" data-act="tck" data-id="${x.id}" aria-label="${dn?'Mark not done':'Mark done'}"></button><button class="tt" data-act="ted" data-id="${x.id}"><span>${esc(x.text)}</span>${dn?'':dueTag(x.due)}${its.length&&!dn?`<em class="due">☑ ${nd}/${its.length}</em>`:''}</button>${sub}</div>`}
 function todoCard(){const{open,done}=tLists();
  return `<section class="card todo"><div class="row" style="padding-top:0"><h3 class="grow" style="margin:0">📝 To-do</h3><span class="hct">${open.length} open</span></div>
 <input class="addin" data-add="t" type="text" maxlength="120" placeholder="+ Add a task (Enter), or paste a list" enterkeyhint="enter" autocomplete="off">
@@ -510,6 +539,76 @@ function addItem(kind,v){v=LAT(v).trim();if(!v)return;
 const vHabits=()=>{const s=hStats();return head('Habits',s.n?`${s.d} of ${s.n} done today`:'Daily habits')+habCard()};
 const vTasks=()=>{const{open,done}=tLists();return head('To-do',`${open.length} open · ${done.length} done today`)+todoCard()};
 function quickRow(){const s=hStats(),o=tLists().open.length;return `<div class="qk"><button data-act="tab" data-t="habits"><b>${s.n?s.d+'/'+s.n:'+'}</b><small>Habits</small></button><button data-act="tab" data-t="tasks"><b>${o}</b><small>To-do</small></button></div>`}
+// ---- structured daily plan (stored in plans.text as "§P1"+JSON; old plain text is parsed once) ----
+const PFX='§P1',SECS=[['urgent','Most urgent task','🔥'],['long','Long-term task','🌱'],['morning','Morning','🌅'],['afternoon','After lunch','☀️'],['evening','Evening','🌆'],['night','Later tonight','🌙']];
+const STN=['Not started','In progress','Done','Failed'],STE=['⚪','🟡','🟢','🔴'];
+function fixP(o){o=o&&typeof o=='object'?o:{};o.sec=o.sec||{};SECS.forEach(([k])=>{if(!Array.isArray(o.sec[k]))o.sec[k]=[]});['risk','resp','notes'].forEach(k=>o[k]=o[k]||'');return o}
+const isP=r=>typeof r=='string'&&r.startsWith(PFX);
+function parsePlanText(txt){const P=fixP({}),notes=[];let cur=null,hits=0;
+ const map=[[/URGENT/,'urgent'],[/LONG/,'long'],[/MORNING/,'morning'],[/LUNCH|AFTERNOON/,'afternoon'],[/EVENING/,'evening'],[/TONIGHT|NIGHT|LATE/,'night'],[/STOP|DISTRACT|RISK/,'risk'],[/RESPONSE|ANSWER/,'resp']];
+ String(txt||'').replace(/\r/g,'').split('\n').forEach(l=>{const t=l.trim();if(!t)return;if(/^📅/.test(t))return;
+  const U=t.toUpperCase();
+  if(/[:?]$/.test(t)){const m=map.find(([re])=>re.test(U));if(m){cur=m[1];hits++;return}}
+  if(!cur){notes.push(t);return}
+  const st=t.match(/^(⚪|⚫|🟢|✅|🟡|🟠|🔴|❌|⏭️|⏭)️?\s*/),s=st?({'🟢':2,'✅':2,'🟡':1,'🟠':1,'🔴':3,'❌':3,'⏭️':3,'⏭':3}[st[1]]||0):0;
+  const v=LAT(t.slice(st?st[0].length:0).replace(/^([-*•]\s+)/,'')).trim();if(!v)return;
+  if(cur=='risk'||cur=='resp')P[cur]=(P[cur]?P[cur]+' / ':'')+v.replace(/^(⚠️|🚧)\s*/,'');
+  else P.sec[cur].push({id:uid().slice(0,8),t:v,s})});
+ if(hits<2)return fixP({notes:LAT(txt||'').trim()});
+ P.notes=LAT(notes.join('\n'));return P}
+function getP(d){d=d===undefined?day:d;const r=data.p[d]||'';if(isP(r)){try{return fixP(JSON.parse(r.slice(PFX.length)))}catch(e){}}
+ if(!r.trim())return fixP({});const P=parsePlanText(r);data.p[d]=PFX+JSON.stringify(P);save();return P} // convert old text once, keep ids stable
+function setP(P){data.p[day]=PFX+JSON.stringify(P);save()}
+const tOf=id=>todos.find(x=>x.id==id&&!x.del);
+const itStat=it=>{const x=it.tid&&tOf(it.tid);return x&&x.done_at?2:it.s||0};
+const itText=it=>{const x=it.tid&&tOf(it.tid);return x?x.text:it.t||''};
+function planText(raw){if(!isP(raw))return String(raw||'').trim();let P;try{P=fixP(JSON.parse(raw.slice(PFX.length)))}catch(e){return''}
+ const o=[],lab={urgent:'MOST URGENT TASK:',long:'MOST IMPORTANT LONG TERM TASK:',morning:'MORNING PLAN:',afternoon:'AFTER LUNCH:',evening:'EVENING:',night:'LATER TONIGHT:'};
+ SECS.forEach(([k])=>{const L=P.sec[k];if(!L.length)return;o.push(lab[k]);L.forEach(it=>{const x=it.tid&&todos.find(z=>z.id==it.tid);o.push((STE[x&&x.done_at?2:it.s||0])+' '+(x?x.text:it.t))});o.push('')});
+ if(P.risk)o.push('WHAT MIGHT STOP ME TODAY?','⚠️ '+P.risk,'');
+ if(P.resp)o.push('MY RESPONSE?','🚧 '+P.resp,'');
+ if(P.notes)o.push(P.notes);
+ return o.join('\n').trim()}
+function planCard(){const P=getP(),all=SECS.flatMap(([k])=>P.sec[k]),dn=all.filter(it=>itStat(it)==2).length;
+ const sec=SECS.map(([k,l,e])=>`<div class="ps" data-sec="${k}"><div class="psh"><span>${e} ${l}</span><button class="pill" data-act="pfrom" data-sec="${k}">+ To-do</button></div>
+${P.sec[k].map(it=>{const s=itStat(it),lk=!!(it.tid&&tOf(it.tid));return `<div class="pi s${s}" data-sec="${k}" data-id="${it.id}"><span class="pdg" draggable="true" title="Drag">⠿</span><button class="st s${s}" data-act="pst" data-sec="${k}" data-id="${it.id}" title="${STN[s]} (tap to change)" aria-label="${STN[s]}"></button>${lk?`<button class="pit plk" data-act="ted" data-id="${it.tid}">${esc(itText(it))}<small>📝</small></button>`:`<input class="pit" type="text" maxlength="80" value="${esc(it.t)}" data-sec="${k}" data-id="${it.id}" enterkeyhint="done">`}<button class="px" data-act="pdel" data-sec="${k}" data-id="${it.id}" aria-label="Remove">×</button></div>`}).join('')}
+<input class="pin" type="text" maxlength="80" data-sec="${k}" placeholder="+ Add" enterkeyhint="enter" autocomplete="off"></div>`).join('');
+ return `<section class="card plan pc ${planShut?'shut':''}"><div class="wch" style="margin-bottom:4px"><h3>📋 Plan for ${day==todayIdx()&&week==monday()?'today':DN[day]}</h3><span class="wcv grow" style="text-align:right">${all.length?dn+'/'+all.length+' ✓':''}</span><button class="pill" data-act="pimp" title="Paste a text plan">Import</button><button class="pill pt" data-act="pt">${planShut?'Show':'Hide'}</button></div>
+<div class="slg">${STN.map((n,i)=>`<span><i class="st s${i}"></i> ${n}</span>`).join('')}</div>
+<div class="pb">${sec}
+<label class="ptl">⚠️ What might stop me today?</label><input class="ptx" type="text" maxlength="120" data-k="risk" value="${esc(P.risk)}" autocomplete="off">
+<label class="ptl">🚧 My response</label><input class="ptx" type="text" maxlength="120" data-k="resp" value="${esc(P.resp)}" autocomplete="off">
+${P.notes?`<label class="ptl">🗒️ Notes</label><textarea class="ptx" data-k="notes" rows="3">${esc(P.notes)}</textarea>`:''}</div></section>`}
+function pFind(P,sec,id){const L=P.sec[sec]||[];const i=L.findIndex(x=>x.id==id);return[L,i]}
+function pAdd(sec,txt){const P=getP();String(txt).replace(/\r/g,'').split('\n').map(l=>LAT(l.trim().replace(/^(⚪|🟢|🟡|🔴|[-*•])️?\s*/,'')).trim()).filter(Boolean).forEach(t=>P.sec[sec].push({id:uid().slice(0,8),t,s:0}));setP(P)}
+function pAddTodo(sec,tid,before){const P=getP();let it=null;SECS.forEach(([k])=>{const L=P.sec[k],i=L.findIndex(x=>x.tid==tid);if(i>=0)it=L.splice(i,1)[0]});
+ it=it||{id:uid().slice(0,8),tid,s:0};pIns(P,sec,it,before);setP(P)}
+function pIns(P,sec,it,before){const L=P.sec[sec],j=before?L.findIndex(x=>x.id==before):-1;if(j>=0)L.splice(j,0,it);else L.push(it)}
+function pMove(from,id,to,before){if(from==to&&id==before)return;const P=getP(),[L,i]=pFind(P,from,id);if(i<0)return;const it=L.splice(i,1)[0];pIns(P,to,it,before);setP(P)}
+function pickSheet(sec){const P=getP(),used=new Set(SECS.flatMap(([k])=>P.sec[k].map(x=>x.tid).filter(Boolean))),L=tLists().open.filter(x=>!used.has(x.id)),nm=(SECS.find(z=>z[0]==sec)||[])[1];
+ $('#sheet').innerHTML=`<div><div class="row"><h3 class="grow" style="margin:0">📝 Add to ${nm}</h3><button class="pill" data-act="close">Done</button></div>
+${L.length?L.map(x=>`<button class="hrw" data-act="ppick" data-sec="${sec}" data-id="${x.id}"><span>${esc(x.text)}</span><span>${x.due?fmt(x.due):''}</span><span>＋</span></button>`).join(''):'<p class="mut">No open tasks left. Add some in To-do.</p>'}</div>`;
+ $('#sheet').classList.add('open')}
+function impSheet(){$('#sheet').innerHTML=`<div><div class="row"><h3 class="grow" style="margin:0">📋 Import plan text</h3><button class="pill" data-act="close">Close</button></div>
+<p class="mut" style="margin:6px 0 0">Paste a plan in your usual format. Headings like MORNING PLAN:, AFTER LUNCH:, EVENING: become sections, and ⚪🟡🟢🔴 set the status. This replaces the plan of this day.</p>
+<textarea id="pimpt" rows="10" placeholder="MOST URGENT TASK:&#10;🟢 EXERCISE&#10;..."></textarea><button class="btn" data-act="pimpok">Import</button></div>`;
+ $('#sheet').classList.add('open');setTimeout(()=>$('#pimpt').focus(),50)}
+let drag=null;
+document.addEventListener('dragstart',e=>{const t=e.target;if(!t.closest)return;
+ const td=t.closest('.td[data-tid]'),pi=t.classList&&t.classList.contains('pdg')?t.closest('.pi'):null;
+ if(pi)drag={k:'p',sec:pi.dataset.sec,id:pi.dataset.id};else if(td)drag={k:'t',id:td.dataset.tid};else return;
+ e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain','plan')}catch(x){}
+ if(pi&&e.dataTransfer.setDragImage)e.dataTransfer.setDragImage(pi,10,10);document.body.classList.add('dragging')});
+document.addEventListener('dragend',()=>{drag=null;document.body.classList.remove('dragging');document.querySelectorAll('.ps.hl').forEach(x=>x.classList.remove('hl'))});
+document.addEventListener('dragover',e=>{if(!drag)return;const ps=e.target.closest&&e.target.closest('.ps');document.querySelectorAll('.ps.hl').forEach(x=>{if(x!==ps)x.classList.remove('hl')});if(!ps)return;e.preventDefault();e.dataTransfer.dropEffect='move';ps.classList.add('hl')});
+document.addEventListener('drop',e=>{if(!drag)return;const ps=e.target.closest&&e.target.closest('.ps');if(!ps)return;e.preventDefault();
+ const pi=e.target.closest('.pi'),before=pi?pi.dataset.id:null,d=drag;drag=null;document.body.classList.remove('dragging');
+ if(d.k=='t')pAddTodo(ps.dataset.sec,d.id,before);else pMove(d.sec,d.id,ps.dataset.sec,before);render()});
+document.addEventListener('input',e=>{const t=e.target;if(!t.classList)return;
+ if(t.classList.contains('pit')&&t.dataset.id){const P=getP(),[L,i]=pFind(P,t.dataset.sec,t.dataset.id);if(i>=0){L[i].t=t.value;setP(P)}}
+ else if(t.classList.contains('ptx')){const P=getP();P[t.dataset.k]=t.value;setP(P)}});
+document.addEventListener('paste',e=>{const t=e.target;if(!t||!t.classList||!t.classList.contains('pin'))return;const x=(e.clipboardData||window.clipboardData).getData('text');
+ if(!/\n/.test(String(x).trim()))return;e.preventDefault();pAdd(t.dataset.sec,x);render();const n=document.querySelector('.pin[data-sec="'+t.dataset.sec+'"]');if(n)n.focus()});
 async function loadWeek(){data=ls('w2:'+week)||{s:{},p:{}};base[week]=clone(data);render();loadCarry();await flush();await pull();applyTpl();prefetchPrev()}
 async function boot(){
  if(sb&&user){
@@ -612,7 +711,7 @@ function vToday(){const s=dayStats(day),pct=Math.round(s.n/64*100),cur=week==mon
   for(let i=g*4;i<g*4+4;i++){const v=data.s[day+'-'+i],c=v&&cats[v[0]];
    L+=`<div data-act="slot" data-i="${i}" class="slot ${c?'has':''} ${i==cur?'cur':''} ${i===fs?'fs':''}" ${c?`style="--c:${col(v[0])}"`:''}><span class="t ${i%4==3?'b':''}">${tm(i)}</span><button class="cb" data-act="slot" data-i="${i}"><span class="cn ${c?'':'ph'}">${c?esc(c.n):'Category'}</span></button><input class="nt" type="text" maxlength="80" data-n="${i}" tabindex="-1" placeholder="Note" value="${v?esc(v[1]||''):''}"></div>`}
   L+='</div>'}
- const plan=`<section class="card plan ${planShut?'shut':''}"><div class="row"><h3 class="grow" style="margin:0">📋 Plan for today</h3><button class="pill pp" data-act="paste">Paste</button><button class="pill pt" data-act="pt">${planShut?'Show':'Hide'}</button></div><div class="pb"><textarea data-plan placeholder="Paste or write your plan for ${DN[day]}…">${esc(data.p[day]||'')}</textarea></div></section>`;
+ const plan=planCard();
  h+=`<div class="dgrid"><aside class="mid"><div class="c-th"><div class="c-td">${todoCard()}</div><div class="c-hb">${habCard()}</div></div><div class="c-pl">${plan}<div class="an"><div class="pieL">${charts('pie')}</div>${charts('rest')}</div></div></aside><main><div class="slots">${L}</div><button class="btn" data-act="exp">📤 Day report</button></main><aside class="hgcol">${hgCard()}${charts('pie')}</aside></div><button class="fab" data-act="an">📈 Day analysis</button>`;
  return h}
 
@@ -641,7 +740,7 @@ function vWeek(){const W=weekStats(),tot=Math.max(0,carry+W.t.xp),lvl=Math.floor
  h+=wcard('w-mp','Week map',W.pct+'% logged',`<div class="map">${m}</div>`,'');
  return h+'</div>'}
 
-function vSetup(){let h=head('Setup','Appearance, hourglass, categories, account')+vTheme()+vHgSet()+vPlanSet();
+function vSetup(){let h=head('Setup','Appearance, hourglass, categories, account')+vTheme()+vHgSet();
  h+=`<div class="card"><div class="set mut" style="margin:0"><span></span><span>Name</span><span>XP</span><span>Focus</span></div>${cats.map((c,i)=>`<div class="set"><input type="color" class="cp" value="${col(i)}" data-ci="${i}" data-f="c" aria-label="Color for ${esc(c.n)}"><input type="text" value="${esc(c.n)}" data-ci="${i}" data-f="n"><input type="number" value="${c.xp}" data-ci="${i}" data-f="xp"><input type="checkbox" ${c.f?'checked':''} data-ci="${i}" data-f="f"></div>`).join('')}<p class="mut" style="margin-bottom:0">Tap a circle to change its color. The last row is your time leak category.</p><button class="btn g" data-act="rc">Reset colors</button></div>`;
  h+=`<div class="card"><h3>Account</h3>`+(sb?(user?`<p class="mut">Signed in as ${esc(user.email)}. Data syncs across your devices.</p><button class="btn g" data-act="out">Sign out</button>`:`<p class="mut">Local mode. Sign in to sync.</p><button class="btn" data-act="signin">Sign in</button>`):`<p class="mut">Local mode. Add your Supabase keys in index.html to sync devices.</p>`)+`</div>`;
  return h}
@@ -755,7 +854,7 @@ function buildReport(w,d){const dd=weekData(w);if(!dd)return null;
   coverage,metrics,categories,periods,comparison:cmp,
   blocks:blocks.map(b=>({start:t0(b.s),end:t1(b.e),minutes:mn(b.e-b.s+1),category:cats[b.c].n,idx:b.c,emoji:EM[b.c]||'🔹',note:b.t})),
   slots:sl.map(x=>[x.i,cats[x.c].n,x.t,cats[x.c].xp,cats[x.c].f?1:0]),
-  plan:((dd.p&&dd.p[d])||'').trim(),analysis:A}}
+  plan:planText((dd.p&&dd.p[d])||''),analysis:A}}
 
 const PER=[['Morning 08–12','morning'],['Afternoon 12–18','afternoon'],['Evening 18–24','evening']];
 const METHOD='Method: XP = sum of XP per logged 15-min slot. Focus = slots in focus categories. Switch = category change between adjacent logged slots. Fragmentation bands (heuristic): below 0.8 low, 0.8 to 1.5 moderate, above 1.5 high switches per logged hour. Comparison = mean of up to 7 previous days with at least 16 logged slots.';
@@ -908,6 +1007,13 @@ document.addEventListener('click',async e=>{
   put2('todos',{...strip(x),items:its,done_at:all?(x.done_at||new Date().toISOString()):null});render()}}
  else if(a=='tdue'){$('#tdt').value=b.dataset.v;document.querySelectorAll('[data-act=tdue]').forEach(z=>z.classList.toggle('on',z===b))}
  else if(a=='tdn'){showDone=!showDone;render()}
+ else if(a=='pst'){const P=getP(),[L,k]=pFind(P,b.dataset.sec,b.dataset.id);if(k>=0){const it=L[k],ns=(itStat(it)+1)%4;it.s=ns;setP(P);
+  const x=it.tid&&tOf(it.tid);if(x&&(ns==2)!==!!x.done_at)put2('todos',{...strip(x),done_at:ns==2?new Date().toISOString():null});render()}}
+ else if(a=='pdel'){const P=getP(),[L,k]=pFind(P,b.dataset.sec,b.dataset.id);if(k>=0){L.splice(k,1);setP(P);render()}}
+ else if(a=='pfrom')pickSheet(b.dataset.sec)
+ else if(a=='ppick'){pAddTodo(b.dataset.sec,b.dataset.id);render();pickSheet(b.dataset.sec)}
+ else if(a=='pimp')impSheet()
+ else if(a=='pimpok'){const v=$('#pimpt').value;if(v.trim()){setP(parsePlanText(v));closeSheet();render();toast('Plan imported')}}
  else if(a=='ctr')ctrSheet(+b.dataset.i)
  else if(a=='cmode'){CM=b.dataset.m;document.querySelectorAll('[data-act=cmode]').forEach(x=>x.classList.toggle('on',x.dataset.m==CM))}
  else if(a=='csave')ctrSave()
@@ -929,6 +1035,8 @@ document.addEventListener('keydown',e=>{
   if(e.key=='Enter'&&(tag=='INPUT'||tag=='SELECT')){e.preventDefault();SHS?SHS():CS!==null?ctrSave():doSave();return}
   if(t.id=='tq'&&(e.key=='ArrowDown'||e.key=='ArrowUp')){e.preventDefault();stepCat(e.key=='ArrowDown'?1:-1)}
   return}
+ if(e.key=='Enter'&&t.classList&&t.classList.contains('pin')){e.preventDefault();const sec=t.dataset.sec;pAdd(sec,t.value);render();const n=document.querySelector('.pin[data-sec="'+sec+'"]');if(n)n.focus();return}
+ if(e.key=='Enter'&&t.classList&&(t.classList.contains('pit')||(t.classList.contains('ptx')&&tag=='INPUT'))){e.preventDefault();t.blur();return}
  if(e.key=='Enter'&&t.classList&&t.classList.contains('addin')){e.preventDefault();addItem(t.dataset.add,t.value);return}
  if(tab!='today'||!document.querySelector('.slot')||e.metaKey||e.ctrlKey||e.altKey)return;
  if(tag=='INPUT'||tag=='TEXTAREA'||tag=='SELECT'){if(e.key=='Escape'||(e.key=='Enter'&&t.classList.contains('nt')))t.blur();return}
