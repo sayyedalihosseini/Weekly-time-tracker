@@ -64,7 +64,17 @@ textarea{min-height:110px;resize:vertical}
 .plan textarea{overflow:hidden;min-height:90px}
 @media(min-width:760px){#app{max-width:1120px}.dgrid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}.dgrid main{grid-column:1;grid-row:1}.dgrid aside{grid-column:2;grid-row:1;position:sticky;top:12px;max-height:calc(100vh - 110px);overflow:auto}}
 .hgcol{display:none}
-@media(min-width:1180px){#app{max-width:1460px}.dgrid{grid-template-columns:minmax(0,1fr) 380px 240px}.dgrid aside.hgcol{display:block;grid-column:3;overflow:visible;position:static;max-height:none}.tabs .t-glass{display:none}.pieL{display:none}}
+@media(min-width:1180px){#app{max-width:none;padding-left:28px;padding-right:28px}.tabs .t-glass{display:none}.pieL{display:none}
+ .dgrid{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) minmax(0,1fr) 250px;gap:18px}
+ .dgrid aside.mid{display:contents}
+ .c-th,.c-pl,.c-td,.c-hb,.dgrid aside.hgcol{grid-row:1;align-self:start;position:static;max-height:calc(100vh - var(--so,330px) - 100px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+ .c-th .c-td,.c-th .c-hb{max-height:none;overflow:visible}
+ .c-th{grid-column:2}.c-pl{grid-column:3}.dgrid aside.hgcol{display:block;grid-column:4}
+ .c-th>div:first-child>.card,.c-pl>.card:first-child,.dgrid aside.hgcol>.card:first-child{margin-top:0}}
+@media(min-width:1600px){.dgrid{grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(0,1fr)) 260px}
+ .c-th{display:contents}.c-th .c-td,.c-th .c-hb{max-height:calc(100vh - var(--so,330px) - 100px);overflow-y:auto}
+ .c-td{grid-column:2}.c-hb{grid-column:3}.c-pl{grid-column:4}.dgrid aside.hgcol{grid-column:5}
+ .c-hb>.card:first-child{margin-top:0}}
 @media(min-width:760px){.slots{max-height:calc(100vh - var(--so,330px) - 165px);min-height:260px;overflow-y:auto;padding:2px 8px 2px 0;scrollbar-width:thin;overscroll-behavior:contain}}
 @media(max-width:759px){.an{display:none}.pt{display:inline-block}.plan.shut .pb,.plan.shut .pp{display:none}.hour{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:6px 0}.slot{display:flex;flex-direction:column;align-items:stretch;gap:3px;padding:6px;margin:0;border-radius:12px}.slot .t{font-size:10px}.cb{font-size:11px;gap:4px}.slot{cursor:pointer}.slot .nt{font-size:11px;padding:4px 5px;border-radius:8px;pointer-events:none}.fab{display:block}}
 .row{display:flex;align-items:center;gap:10px;padding:8px 0}
@@ -571,7 +581,7 @@ function vToday(){const s=dayStats(day),pct=Math.round(s.n/64*100),cur=week==mon
    L+=`<div data-act="slot" data-i="${i}" class="slot ${c?'has':''} ${i==cur?'cur':''} ${i===fs?'fs':''}" ${c?`style="--c:${col(v[0])}"`:''}><span class="t ${i%4==3?'b':''}">${tm(i)}</span><button class="cb" data-act="slot" data-i="${i}"><span class="cn ${c?'':'ph'}">${c?esc(c.n):'Category'}</span></button><input class="nt" type="text" maxlength="80" data-n="${i}" tabindex="-1" placeholder="Note" value="${v?esc(v[1]||''):''}"></div>`}
   L+='</div>'}
  const plan=`<section class="card plan ${planShut?'shut':''}"><div class="row"><h3 class="grow" style="margin:0">📋 Plan for today</h3><button class="pill pp" data-act="paste">Paste</button><button class="pill pt" data-act="pt">${planShut?'Show':'Hide'}</button></div><div class="pb"><textarea data-plan placeholder="Paste or write your plan for ${DN[day]}…">${esc(data.p[day]||'')}</textarea></div></section>`;
- h+=`<div class="dgrid"><aside>${todoCard()}${habCard()}${plan}<div class="an"><div class="pieL">${charts('pie')}</div>${charts('rest')}</div></aside><main><div class="slots">${L}</div><button class="btn" data-act="exp">📤 Day report</button></main><aside class="hgcol">${hgCard()}${charts('pie')}</aside></div><button class="fab" data-act="an">📈 Day analysis</button>`;
+ h+=`<div class="dgrid"><aside class="mid"><div class="c-th"><div class="c-td">${todoCard()}</div><div class="c-hb">${habCard()}</div></div><div class="c-pl">${plan}<div class="an"><div class="pieL">${charts('pie')}</div>${charts('rest')}</div></div></aside><main><div class="slots">${L}</div><button class="btn" data-act="exp">📤 Day report</button></main><aside class="hgcol">${hgCard()}${charts('pie')}</aside></div><button class="fab" data-act="an">📈 Day analysis</button>`;
  return h}
 
 function dotsCard(t,right,total,done,cur,foot){let d='';for(let i=0;i<total;i++)d+=`<i class="${i<done?'f':i==cur?'f c':''}"></i>`;
@@ -660,9 +670,8 @@ function pie(h){const T=h.reduce((x,y)=>x+y,0);if(!T)return '<p class="mut">No d
  return `<svg viewBox="0 0 200 200" style="width:100%;max-width:260px;display:block;margin:0 auto">${o}<text x="100" y="98" text-anchor="middle" font-size="26" font-weight="700" fill="var(--tx)">${T.toFixed(1)}h</text><text x="100" y="118" text-anchor="middle" font-size="11" fill="var(--mu)">logged</text></svg>`}
 function charts(mode){const I=info();if(!I)return mode=='rest'?'':'<div class="card"><p class="mut" style="margin:0">Nothing logged yet.</p></div>';
  const{s,cl}=I,RB=buildReport(week,day),a=RB?RB.analysis:I.a,mx=Math.max(...s.h);
- const P=`<div class="card"><h3>🥧 Where the time went</h3>${pie(s.h)}<div style="margin-top:10px">${cl.map(([i,h])=>`<div class="row" style="padding:4px 0"><span class="dot" style="background:${col(i)}"></span><span class="grow" style="font-size:14px">${esc(cats[i].n)}</span><span style="font-size:14px">${dur(h)} · ${Math.round(h*4/s.n*100)}%</span></div>`).join('')}</div></div>`;
- const R=`<div class="card"><h3>📊 Hours per category</h3>${cl.map(([i,h])=>`<div class="row"><span style="width:104px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cats[i].n)}</span><div class="grow bar"><span style="width:${h/mx*100}%;background:${col(i)}"></span></div><span style="width:38px;text-align:right;font-size:13px">${h.toFixed(1)}</span></div>`).join('')}</div>
-<div class="card"><h3>🔎 Analysis</h3>${a.map(x=>`<p style="margin:6px 0;font-size:14px">${x}</p>`).join('')}<p class="mut" style="margin:10px 0 0">${s.xp} XP: ${verdict(s.xp)}</p></div>`;
+ const P=`<div class="card"><h3>🥧 Where the time went</h3>${pie(s.h)}<div style="margin-top:10px">${cl.map(([i,h])=>`<div class="row" style="padding:4px 0"><span class="dot" style="background:${col(i)}"></span><span class="grow" style="font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cats[i].n)}</span><span style="font-size:13px;white-space:nowrap;color:var(--mu)">${dur(h)} · ${Math.round(h*4/s.n*100)}%</span></div>`).join('')}</div></div>`;
+ const R=`<div class="card"><h3>📊 Hours per category</h3>${cl.map(([i,h])=>`<div class="row"><span style="width:104px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cats[i].n)}</span><div class="grow bar"><span style="width:${h/mx*100}%;background:${col(i)}"></span></div><span style="width:38px;text-align:right;font-size:13px">${h.toFixed(1)}</span></div>`).join('')}</div>`;
  return mode=='pie'?P:mode=='rest'?R:P+R}
 // ---- day report: one model, four renderers, 30-day archive ----
 const RDAYS=30;
@@ -728,26 +737,24 @@ function kv(m){const M=m.metrics,C=m.coverage,p=m.comparison,lf=M.longest_focus,
  ['📝 Coverage',`${C.logged_slots}/${C.total_slots} slots (${Math.round(C.logged_pct)}%), active ${C.first}–${C.last}, ${C.gaps.length} gap${C.gaps.length==1?'':'s'}`+(C.gaps.length?`, longest ${dm(C.longest_gap_min)}`:'')]];
  if(p)r.push([`📈 vs previous ${p.days} logged days`,`XP ${sg(p.xp_delta)}`+(p.xp_delta_pct!==null?` (${sg(p.xp_delta_pct)}%)`:'')+`, focus ${sg(p.focus_delta_min)} min`]);
  return r}
-function rText(m){const M=m.metrics,tot=m.categories.reduce((t,c)=>t+c.minutes,0),o=[`📅 ${fmtDate(m.date)}`,'','📊 Key metrics'];
- kv(m).forEach(([k,v])=>o.push(`${k}: ${v}`));
- o.push('','⏱️ Time by category');m.categories.forEach(c=>o.push(`${c.emoji} ${c.name}: ${dm(c.minutes)} · ${Math.round(c.pct)}% · ${c.xp} XP`));
- o.push(`Σ ${dm(tot)} · ${M.xp} XP`,'','🕐 Time of day');
- PER.forEach(([l,k])=>{const p=m.periods[k];o.push(`${l}: ${dm(p.minutes)} · ${p.xp} XP · focus ${dm(p.focus_min)}`)});
- o.push(`Peak hour ${M.peak_hour.start}–${M.peak_hour.end}: ${M.peak_hour.xp} XP`,'','🗒️ Timeline');
- tlOf(m).forEach(b=>o.push(b.gap?`⬜ ${b.start}–${b.end} unlogged (${dm(b.minutes)})`:`${b.start}–${b.end} (${dm(b.minutes)}) ${b.emoji} ${b.category}${b.note?': '+b.note:''}`));
- if(m.plan)o.push('','📋 Plan',m.plan);
- o.push('','🔎 Analysis',...m.analysis,'','🧪 '+METHOD,'Generated '+m.generated.slice(0,16).replace('T',' '));
+function kv2(m){const M=m.metrics,lf=M.longest_focus;return[
+ ['🎯 Focus',`${dm(M.focus_min)}, ${Math.round(M.focus_share_pct)}% of logged time`+(lf?`; longest block ${dm(lf.minutes)} (${lf.start}–${lf.end})`:'')],
+ ['🗑️ Time leak',`${dm(M.waste_min)}, ${Math.round(M.waste_pct)}% of logged time`],
+ ['⏰ Peak hour',`${M.peak_hour.start}–${M.peak_hour.end}`]]}
+function rText(m){const tot=m.categories.reduce((t,c)=>t+c.minutes,0),o=[`📅 ${fmtDate(m.date)}`,'','📊 Key metrics'];
+ kv2(m).forEach(([k,v])=>o.push(`${k}: ${v}`));
+ o.push('','⏱️ Time by category');m.categories.forEach(c=>o.push(`${c.emoji} ${c.name}: ${dm(c.minutes)} · ${Math.round(c.pct)}%`));
+ o.push(`Σ ${dm(tot)}`,'','🕐 Time of day');
+ PER.forEach(([l,k])=>{const p=m.periods[k];o.push(`${l}: ${dm(p.minutes)} · focus ${dm(p.focus_min)}`)});
+ if(m.plan)o.push('',m.plan);
  return o.join('\n')}
-function rMd(m){const M=m.metrics,tot=m.categories.reduce((t,c)=>t+c.minutes,0),o=[`# 📅 ${fmtDate(m.date)}`,'','## 📊 Key metrics','','| Metric | Value |','|---|---|'];
- kv(m).forEach(([k,v])=>o.push(`| ${k} | ${mdc(v)} |`));
- o.push('','## ⏱️ Time by category','','| Category | Time | Share | XP |','|---|---:|---:|---:|');
- m.categories.forEach(c=>o.push(`| ${c.emoji} ${mdc(c.name)} | ${dm(c.minutes)} | ${Math.round(c.pct)}% | ${c.xp} |`));
- o.push(`| **Total** | **${dm(tot)}** | 100% | **${M.xp}** |`,'','## 🕐 Time of day','','| Period | Time | XP | Focus |','|---|---:|---:|---:|');
- PER.forEach(([l,k])=>{const p=m.periods[k];o.push(`| ${l} | ${dm(p.minutes)} | ${p.xp} | ${dm(p.focus_min)} |`)});
- o.push('',`Peak hour: ${M.peak_hour.start}–${M.peak_hour.end} (${M.peak_hour.xp} XP)`,'','## 🗒️ Timeline','','| Time | Duration | Category | Note |','|---|---:|---|---|');
- tlOf(m).forEach(b=>o.push(b.gap?`| ${b.start}–${b.end} | ${dm(b.minutes)} | ⬜ unlogged | |`:`| ${b.start}–${b.end} | ${dm(b.minutes)} | ${b.emoji} ${mdc(b.category)} | ${mdc(b.note)} |`));
- if(m.plan)o.push('','## 📋 Plan','',...m.plan.split('\n').map(l=>'> '+l));
- o.push('','## 🔎 Analysis','',...m.analysis.map(a=>'- '+a),'','---','','*'+METHOD+'*','','*Generated '+m.generated.slice(0,16).replace('T',' ')+'*');
+function rMd(m){const tot=m.categories.reduce((t,c)=>t+c.minutes,0),o=[`# 📅 ${fmtDate(m.date)}`,'','## 📊 Key metrics','','| Metric | Value |','|---|---|'];
+ kv2(m).forEach(([k,v])=>o.push(`| ${k} | ${mdc(v)} |`));
+ o.push('','## ⏱️ Time by category','','| Category | Time | Share |','|---|---:|---:|');
+ m.categories.forEach(c=>o.push(`| ${c.emoji} ${mdc(c.name)} | ${dm(c.minutes)} | ${Math.round(c.pct)}% |`));
+ o.push(`| **Total** | **${dm(tot)}** | 100% |`,'','## 🕐 Time of day','','| Period | Time | Focus |','|---|---:|---:|');
+ PER.forEach(([l,k])=>{const p=m.periods[k];o.push(`| ${l} | ${dm(p.minutes)} | ${dm(p.focus_min)} |`)});
+ if(m.plan)o.push('',m.plan);
  return o.join('\n')}
 function rCsv(m){const q=s=>'"'+String(s).replace(/"/g,'""')+'"';
  return ['date,slot_start,slot_end,category,note,xp,focus',...m.slots.map(([i,c,t,x,f])=>[m.date,hm(480+15*i),hm(495+15*i),q(c),q(t),x,f].join(','))].join('\n')}
