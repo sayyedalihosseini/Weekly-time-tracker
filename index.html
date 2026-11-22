@@ -418,7 +418,7 @@ async function flush2(){if(!sb||!user||fl2)return;const q=ls('q2')||{},ks=Object
   if(Object.keys(n).length)flush2();else if(!Object.keys(ls('q')||{}).length)setSync('ok')}
  catch(e){fl2=false;lastErr=(e&&e.message)||String(e);setSync('err');setTimeout(flush2,15000)}}
 async function pull2(){if(!sb||!user)return;
- const[a,b,c]=await Promise.all([sb.from('habits').select('id,name,pos,del,items'),sb.from('habit_days').select('habit_id,day,done').gte('day',addDays(tday(),-400)),sb.from('todos').select('id,text,due,done_at,pos,del,created_at')]);
+ const[a,b,c]=await Promise.all([sb.from('habits').select('id,name,pos,del,items'),sb.from('habit_days').select('habit_id,day,done').gte('day',addDays(tday(),-400)),sb.from('todos').select('id,text,due,done_at,pos,del,created_at,items')]);
  if(a.error||b.error||c.error)return;
  habits=a.data;todos=c.data;hdays={};b.data.forEach(r=>{if(r.done)hdays[r.habit_id+'|'+r.day]=true});
  Object.entries(ls('q2')||{}).forEach(([k,v])=>apply2(k.split('|')[0],v)); // unsent local changes win
@@ -444,7 +444,7 @@ function habCard(){const L=liveH(),t=tday(),st=hStats();
   return `<div class="hb ${on?'on':''}"><button class="hck" data-act="hday" data-id="${h.id}" data-d="${t}" aria-label="Done today"></button><button class="hn" data-act="hed" data-id="${h.id}"><span>${esc(h.name)}</span><small>${s?'🔥 '+s+(s==1?' day':' days'):'No streak yet'}${its.length?' · ☑ '+(on?its.length:nd)+'/'+its.length:''}</small></button><div class="hw">${dots}</div>${sub}</div>`}).join('');
  return `<section class="card hab"><div class="row" style="padding-top:0"><h3 class="grow" style="margin:0">✅ Habits</h3>${st.n?`<span class="hct ${st.d==st.n?'all':''}">${st.d}/${st.n}</span>`:''}</div>
 ${st.n?`<div class="bar" style="height:6px;margin:2px 0 6px"><span style="width:${st.n?st.d/st.n*100:0}%"></span></div>`:''}${rows||'<p class="empty">Add the habits you want to do every day.</p>'}
-<input class="addin" data-add="h" type="text" maxlength="40" placeholder="+ Add a habit, press Enter" enterkeyhint="enter" autocomplete="off"></section>`}
+<input class="addin" data-add="h" type="text" maxlength="40" placeholder="+ Add a habit (Enter), or paste a list" enterkeyhint="enter" autocomplete="off"></section>`}
 function hEdit(id){const h=habits.find(x=>x.id==id);if(!h)return;let m=0;for(let k=0;k<30;k++)if(hDone(id,addDays(tday(),-k)))m++;
  $('#sheet').innerHTML=`<div><div class="row"><h3 class="grow" style="margin:0">✅ Habit</h3><button class="pill" data-act="close">Close</button></div>
 <input id="hn" type="text" maxlength="40" value="${esc(h.name)}" autocomplete="off">
@@ -470,10 +470,12 @@ function tLists(){const t=tday(),L=todos.filter(x=>!x.del);
 function dueTag(d){if(!d)return'';const t=tday(),y=d<t,tm=addDays(t,1);
  const l=d==t?'Today':d==tm?'Tomorrow':(y?'Overdue · ':'')+DN[(new Date(d+'T00:00').getDay()+6)%7]+' '+fmt(d);
  return `<em class="due ${y?'o':d==t?'t':''}">${l}</em>`}
-function tRow(x,dn){return `<div class="td ${dn?'dn':''}"><button class="tck" data-act="tck" data-id="${x.id}" aria-label="${dn?'Mark not done':'Mark done'}"></button><button class="tt" data-act="ted" data-id="${x.id}"><span>${esc(x.text)}</span>${dn?'':dueTag(x.due)}</button></div>`}
+function tRow(x,dn){const its=hItems(x),nd=its.filter(i=>i.d).length;
+ const sub=its.length&&!dn?`<div class="hsl">${its.map(it=>`<button class="hs ${it.d?'on':''}" data-act="tsub" data-id="${x.id}" data-i="${it.id}"><i></i><span>${esc(it.n)}</span></button>`).join('')}</div>`:'';
+ return `<div class="td ${dn?'dn':''}"><button class="tck" data-act="tck" data-id="${x.id}" aria-label="${dn?'Mark not done':'Mark done'}"></button><button class="tt" data-act="ted" data-id="${x.id}"><span>${esc(x.text)}</span>${dn?'':dueTag(x.due)}${its.length&&!dn?`<em class="due">☑ ${nd}/${its.length}</em>`:''}</button>${sub}</div>`}
 function todoCard(){const{open,done}=tLists();
  return `<section class="card todo"><div class="row" style="padding-top:0"><h3 class="grow" style="margin:0">📝 To-do</h3><span class="hct">${open.length} open</span></div>
-<input class="addin" data-add="t" type="text" maxlength="120" placeholder="+ Add a task, press Enter" enterkeyhint="enter" autocomplete="off">
+<input class="addin" data-add="t" type="text" maxlength="120" placeholder="+ Add a task (Enter), or paste a list" enterkeyhint="enter" autocomplete="off">
 ${open.map(x=>tRow(x,0)).join('')||'<p class="empty">Nothing open. Nice.</p>'}
 ${done.length?`<button class="dnh" data-act="tdn">${showDone?'▾':'▸'} Done today (${done.length})</button>${showDone?done.map(x=>tRow(x,1)).join(''):''}`:''}</section>`}
 function tEdit(id){const x=todos.find(z=>z.id==id);if(!x)return;const t=tday();
@@ -481,10 +483,26 @@ function tEdit(id){const x=todos.find(z=>z.id==id);if(!x)return;const t=tday();
 <input id="tn" type="text" maxlength="120" value="${esc(x.text)}" autocomplete="off">
 <div class="row" style="flex-wrap:wrap;gap:8px;padding:12px 0 4px"><span class="mut" style="margin:0">Due</span>${[['Today',t],['Tomorrow',addDays(t,1)],['Next week',addDays(t,7)],['No date','']].map(([l,v])=>`<button class="pill ${(x.due||'')==v?'on':''}" data-act="tdue" data-v="${v}">${l}</button>`).join('')}</div>
 <input id="tdt" type="date" value="${x.due||''}">
+<p class="mut" style="margin:14px 0 2px">Checklist (optional). The task is done when every item is ticked.</p><div id="hie"></div>
+<input id="hin" type="text" maxlength="60" placeholder="+ Add a checklist item, press Enter" autocomplete="off">
 <button class="btn" data-act="tsave">Save</button><button class="btn g" data-act="tdel" style="margin-top:10px">Delete task</button></div>`;
- SHS=()=>{const n=LAT($('#tn').value).trim();if(n)put2('todos',{...strip(x),text:n,due:$('#tdt').value||null});closeSheet();render()};
+ HI=hItems(x).map(z=>({...z}));hiPaint();
+ SHS=()=>{hiAdd();const n=LAT($('#tn').value).trim();if(n)put2('todos',{...strip(x),text:n,due:$('#tdt').value||null,items:HI});closeSheet();render()};
  $('#sheet').classList.add('open');$('#sheet').dataset.id=id}
 
+function parseBatch(txt){const out=[];
+ String(txt).replace(/\r/g,'').split('\n').forEach(l=>{if(!l.trim())return;const ind=/^(\t| {2,})/.test(l);
+  const v=LAT(l.trim().replace(/^([-*•·]\s+)?(\[[ xX]?\]\s*)?(\d+[.)]\s+)?/,'')).trim();if(!v)return;
+  if(ind&&out.length)out[out.length-1].sub.push(v);else out.push({n:v,sub:[]})});return out}
+function addBatch(kind,txt){const B=parseBatch(txt);if(!B.length)return;let p0=liveH().length?Math.max(...liveH().map(h=>h.pos))+1:0;const t0=-Date.now();
+ B.forEach((b,k)=>{const items=b.sub.map(n=>({id:uid().slice(0,8),n}));
+  if(kind=='h')put2('habits',{id:uid(),name:b.n,pos:p0+k,del:false,items});
+  else put2('todos',{id:uid(),text:b.n,due:null,done_at:null,pos:t0+k,del:false,created_at:new Date().toISOString(),items:items.map(i=>({...i,d:false}))})});
+ const ns=B.reduce((a,b)=>a+b.sub.length,0);render();toast(`Added ${B.length} ${kind=='h'?'habit':'task'}${B.length==1?'':'s'}`+(ns?` with ${ns} checklist item${ns==1?'':'s'}`:''))}
+document.addEventListener('paste',e=>{const t=e.target;if(!t||!t.matches||!t.matches('.addin,#hin'))return;
+ const x=(e.clipboardData||window.clipboardData).getData('text');if(!/\n/.test(String(x).trim()))return;e.preventDefault();
+ if(t.id=='hin'){parseBatch(x).forEach(b=>[b.n,...b.sub].forEach(n=>HI.push({id:uid().slice(0,8),n})));hiPaint();t.value='';return}
+ addBatch(t.dataset.add,x)});
 function addItem(kind,v){v=LAT(v).trim();if(!v)return;
  if(kind=='h')put2('habits',{id:uid(),name:v,pos:liveH().length?Math.max(...liveH().map(h=>h.pos))+1:0,del:false});
  else put2('todos',{id:uid(),text:v,due:null,done_at:null,pos:-Date.now(),del:false,created_at:new Date().toISOString()});
@@ -886,6 +904,8 @@ document.addEventListener('click',async e=>{
  else if(a=='hdel'||a=='tdel'){if(!b.dataset.sure){b.dataset.sure=1;b.textContent='Tap again to delete';return}const id=$('#sheet').dataset.id,L=a=='hdel'?habits:todos,x=L.find(z=>z.id==id);if(x)put2(a=='hdel'?'habits':'todos',{...strip(x),del:true});closeSheet();render()}
  else if(a=='tck'){const x=todos.find(z=>z.id==b.dataset.id);if(x){put2('todos',{...strip(x),done_at:x.done_at?null:new Date().toISOString()});render()}}
  else if(a=='ted')tEdit(b.dataset.id)
+ else if(a=='tsub'){const x=todos.find(z=>z.id==b.dataset.id);if(x){const its=hItems(x).map(z=>z.id==b.dataset.i?{...z,d:!z.d}:z),all=its.every(z=>z.d);
+  put2('todos',{...strip(x),items:its,done_at:all?(x.done_at||new Date().toISOString()):null});render()}}
  else if(a=='tdue'){$('#tdt').value=b.dataset.v;document.querySelectorAll('[data-act=tdue]').forEach(z=>z.classList.toggle('on',z===b))}
  else if(a=='tdn'){showDone=!showDone;render()}
  else if(a=='ctr')ctrSheet(+b.dataset.i)
