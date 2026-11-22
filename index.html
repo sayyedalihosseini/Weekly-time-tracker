@@ -672,7 +672,7 @@ function charts(mode){const I=info();if(!I)return mode=='rest'?'':'<div class="c
  const{s,cl}=I,RB=buildReport(week,day),a=RB?RB.analysis:I.a,mx=Math.max(...s.h);
  const P=`<div class="card"><h3>🥧 Where the time went</h3>${pie(s.h)}<div style="margin-top:10px">${cl.map(([i,h])=>`<div class="row" style="padding:4px 0"><span class="dot" style="background:${col(i)}"></span><span class="grow" style="font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cats[i].n)}</span><span style="font-size:13px;white-space:nowrap;color:var(--mu)">${dur(h)} · ${Math.round(h*4/s.n*100)}%</span></div>`).join('')}</div></div>`;
  const R=`<div class="card"><h3>📊 Hours per category</h3>${cl.map(([i,h])=>`<div class="row"><span style="width:104px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cats[i].n)}</span><div class="grow bar"><span style="width:${h/mx*100}%;background:${col(i)}"></span></div><span style="width:38px;text-align:right;font-size:13px">${h.toFixed(1)}</span></div>`).join('')}</div>`;
- return mode=='pie'?P:mode=='rest'?R:P+R}
+ return mode=='rest'?'':P}
 // ---- day report: one model, four renderers, 30-day archive ----
 const RDAYS=30;
 const wkOf=s=>{const d=new Date(s+'T00:00'),k=(d.getDay()+6)%7;return[addDays(s,-k),k]};
