@@ -80,8 +80,10 @@ textarea{min-height:110px;resize:vertical}
 .row{display:flex;align-items:center;gap:10px;padding:8px 0}
 .dot{width:12px;height:12px;border-radius:50%;flex:none}
 .grow{flex:1;min-width:0}
-.map{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.map{display:grid;grid-template-columns:30px repeat(7,1fr);gap:2px 3px;align-items:center}
 .map u{height:5px;border-radius:2px;background:var(--sf2)}
+.map .mh{font-size:11px;color:var(--mu);text-align:center;padding-bottom:6px}.map .mh.on{color:var(--ac);font-weight:700}
+.map .ml{font-size:10px;color:var(--mu);line-height:5px;height:5px;overflow:visible;white-space:nowrap}
 
 #sheet{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;justify-content:center;z-index:5}
 #sheet.open{display:flex}
@@ -190,13 +192,25 @@ textarea{min-height:110px;resize:vertical}
 .ct.em{flex:0 0 34px;padding:0;display:flex;align-items:center;justify-content:center}
 .ct.em b{color:var(--mu);font-size:24px;font-weight:400;line-height:1}
 #cn,#cd{width:100%;box-sizing:border-box;font-size:16px;margin-bottom:8px}
-.dots{display:grid;grid-template-columns:repeat(auto-fill,14px);justify-content:space-between;gap:9px 4px;margin-top:16px}
+.dots{display:grid;grid-template-columns:repeat(auto-fit,minmax(16px,1fr));justify-items:center;gap:10px 2px;margin-top:16px}
 .dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--ac);box-sizing:border-box}
 .dots i.f{background:var(--ac)}
 .dots i.c{box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 28%,transparent)}
 .dc h3{white-space:nowrap}.dv{white-space:nowrap;color:var(--mu);font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
-@media(min-width:760px){.wgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-top:12px}.wgrid .card{margin:0}.wgrid .chips{grid-column:1/-1;grid-template-columns:repeat(4,1fr);margin:0}.wgrid .wide{grid-column:1/-1}}
-@media(min-width:1180px){.wgrid{grid-template-columns:repeat(3,minmax(0,1fr))}.wgrid .yr{grid-column:span 2}.wgrid .dbd{grid-row:span 2}.wgrid .mp{grid-column:span 2}}
+.wc{display:flex;flex-direction:column;padding:18px 20px}
+.wch{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.wch h3{margin:0;font-size:16px;font-weight:600;white-space:nowrap}
+.wcv{font-size:15px;font-weight:700;color:var(--mu);font-variant-numeric:tabular-nums;white-space:nowrap}
+.wcf{margin:auto 0 0;padding-top:12px;font-size:13px;color:var(--mu)}
+.wc .dots{margin-top:2px}
+.hc{display:grid;grid-template-columns:minmax(120px,1.3fr) minmax(60px,1.5fr) 50px 32px;align-items:center;gap:10px;padding:5px 0;font-size:13px}
+.hcn{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hcn i{flex:none;width:9px;height:9px;border-radius:50%}
+.hc b{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}.hc small{text-align:right;color:var(--mu);font-size:12px}
+.hc .bar{height:8px}
+@media(min-width:760px){.wgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch;margin-top:12px}.wgrid .card{margin:0}.wgrid .chips{grid-column:1/-1;grid-template-columns:repeat(4,1fr);gap:16px;margin:0}.wgrid .w-hc,.wgrid .w-mp{grid-column:1/-1}}
+@media(min-width:1180px){.wgrid{grid-template-columns:repeat(4,minmax(0,1fr))}.wgrid .w-lv,.wgrid .w-lg{grid-column:span 1}.wgrid .dc{grid-column:span 2}.wgrid .yr{grid-column:1/-1}.wgrid .w-hc,.wgrid .w-mp{grid-column:span 2}}
+@media(min-width:1600px){.wgrid .w-hc{grid-column:span 1}.wgrid .w-mp{grid-column:span 3}}
 .hab,.todo{padding-bottom:10px}
 .hct{font-size:14px;font-weight:700;color:var(--mu);font-variant-numeric:tabular-nums}.hct.all{color:var(--ac)}
 .hb,.td{display:grid;align-items:center;gap:10px;padding:7px 0}
@@ -585,30 +599,29 @@ function vToday(){const s=dayStats(day),pct=Math.round(s.n/64*100),cur=week==mon
  return h}
 
 function dotsCard(t,right,total,done,cur,foot){let d='';for(let i=0;i<total;i++)d+=`<i class="${i<done?'f':i==cur?'f c':''}"></i>`;
- return `<div class="card dc"><div class="row"><h3 class="grow" style="margin:0">${t}</h3><span class="dv">${right}</span></div><div class="dots">${d}</div><p class="mut" style="margin:12px 0 0">${foot}</p></div>`}
+ return wcard('dc',t,right,`<div class="dots">${d}</div>`,foot)}
 function isoWeek(n){const d=new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())),k=d.getUTCDay()||7;d.setUTCDate(d.getUTCDate()+4-k);const y=d.getUTCFullYear();return[y,Math.ceil(((d-Date.UTC(y,0,1))/864e5+1)/7)]}
 function weeksIn(y){const j=new Date(Date.UTC(y,0,1)).getUTCDay(),leap=(y%4==0&&y%100!=0)||y%400==0;return j==4||(leap&&j==3)?53:52}
 function timeCards(){const n=new Date(),dim=new Date(n.getFullYear(),n.getMonth()+1,0).getDate(),dd=n.getDate(),[wy,wk]=isoWeek(n),wt=weeksIn(wy);
  const mn=n.toLocaleDateString('en-GB',{month:'long'});
  return dotsCard('This month',(dim-dd)+(dim-dd==1?' day left':' days left'),dim,dd-1,dd-1,mn+': day '+dd+' of '+dim)+
-  dotsCard('This year',(wt-wk)+(wt-wk==1?' week left':' weeks left'),wt,wk-1,wk-1,wy+': week '+wk+' of '+wt).replace('card dc','card dc yr')}
+  dotsCard('This year',(wt-wk)+(wt-wk==1?' week left':' weeks left'),wt,wk-1,wk-1,wy+': week '+wk+' of '+wt).replace('wc dc','wc dc yr')}
+const wcard=(cls,t,r,body,foot)=>`<section class="card wc ${cls}"><div class="wch"><h3>${t}</h3>${r!==''&&r!=null?`<span class="wcv">${r}</span>`:''}</div>${body}${foot?`<p class="wcf">${foot}</p>`:''}</section>`;
 function vWeek(){const W=weekStats(),tot=Math.max(0,carry+W.t.xp),lvl=Math.floor(tot/500)+1,into=tot%500;
  let bd=0;W.days.forEach((s,i)=>{if(s.xp>W.days[bd].xp)bd=i});
- const st=W.pct>=85?'Excellent tracking week':W.pct>=60?'Good, keep the chain going':W.pct>=30?'Warming up':'Getting started';
- const lt=W.t.n?Math.round(W.t.waste*4/W.t.n*100):0;
+ const st=W.pct>=85?'Excellent tracking':W.pct>=60?'Good, keep the chain going':W.pct>=30?'Warming up':'Getting started';
+ const lt=W.t.n?Math.round(W.t.waste*4/W.t.n*100):0,ti=week==monday()?todayIdx():-1;
  let h=head('Week',range(),1)+'<div class="wgrid">';
  h+=`<div class="chips">${chip('XP this week',W.t.xp,'⚡')}${chip('Level','LV '+lvl,'🏆')}${chip('Focus',W.t.foc.toFixed(1)+' h','🎯')}${chip('Best streak',W.streak+' d','🔥')}</div>`;
- h+=`<div class="card"><div class="bar"><span style="width:${into/5}%"></span></div><p class="mut" style="margin-bottom:0">${500-into} XP to level ${lvl+1}. All-time: ${tot} XP (${carry} carried in from earlier weeks).</p></div>`;
- h+=`<div class="card"><div class="row"><span class="grow">Week logged</span><b>${W.pct}%</b></div><div class="bar"><span style="width:${W.pct}%"></span></div><p class="mut" style="margin-bottom:0">${st}. Best day: ${W.t.xp?DN[bd]+' ('+W.days[bd].xp+' XP)':'none yet'}. Time leak: ${W.t.waste.toFixed(1)} h (${lt}%).</p></div>`;
+ h+=wcard('w-lv','Level progress',`LV ${lvl} → ${lvl+1}`,`<div class="bar"><span style="width:${into/5}%"></span></div>`,`${500-into} XP to go · ${tot} XP all-time`);
+ h+=wcard('w-lg','Week logged',W.pct+'%',`<div class="bar"><span style="width:${W.pct}%"></span></div>`,`${st} · ${W.t.n}/448 slots · best day ${W.t.xp?DN[bd]:'–'} · leak ${W.t.waste.toFixed(1)} h (${lt}%)`);
  h+=timeCards();
- h+=`<div class="card dbd"><h3>Day by day</h3>${W.days.map((s,i)=>`<div class="row"><span style="width:36px">${DN[i]}</span><div class="grow bar"><span style="width:${Math.round(s.n/64*100)}%"></span></div><span style="width:70px;text-align:right;font-size:14px">${s.xp} XP ${s.n>=48?'✓':''}</span></div>`).join('')}</div>`;
- h+=`<div class="card"><h3>🥧 Week: where the time went</h3>${pie(W.t.h)}</div>`;
- h+=`<div class="card"><h3>📚 Daily mix</h3>${W.days.map((s,i)=>`<div class="row"><span style="width:36px">${DN[i]}</span><div class="grow bar" style="display:flex">${s.h.map((v,k)=>v?`<span style="width:${v/16*100}%;background:${col(k)};border-radius:0"></span>`:'').join('')}</div><span style="width:44px;text-align:right;font-size:14px">${(s.n/4).toFixed(1)}h</span></div>`).join('')}</div>`;
- const mx=Math.max(.25,...W.t.h);
- h+=`<div class="card"><h3>Hours by category</h3>${cats.map((c,i)=>W.t.h[i]?`<div class="row"><span class="dot" style="background:${col(i)}"></span><span style="width:112px;font-size:14px">${esc(c.n)}</span><div class="grow bar"><span style="width:${W.t.h[i]/mx*100}%;background:${col(i)}"></span></div><span style="width:44px;text-align:right;font-size:14px">${W.t.h[i].toFixed(1)}</span></div>`:'').join('')||'<p class="mut">Nothing logged yet.</p>'}</div>`;
- let m='';for(let i=0;i<64;i++)for(let d=0;d<7;d++){const v=data.s[d+'-'+i];m+=v&&cats[v[0]]?`<u style="background:${col(v[0])}"></u>`:'<u></u>'}
- h+=`<div class="card wide mp"><h3>Week map</h3><div class="map">${m}</div></div></div>`;
- return h}
+ const L=cats.map((c,i)=>[i,W.t.h[i]]).filter(x=>x[1]).sort((a,b)=>b[1]-a[1]),mx=Math.max(.25,...W.t.h),T=W.t.n/4||1;
+ h+=wcard('w-hc','Hours by category',(W.t.n/4).toFixed(1)+' h',L.map(([i,v])=>`<div class="hc"><span class="hcn"><i style="background:${col(i)}"></i>${esc(cats[i].n)}</span><div class="bar"><span style="width:${v/mx*100}%;background:${col(i)}"></span></div><b>${v.toFixed(1)} h</b><small>${Math.round(v/T*100)}%</small></div>`).join('')||'<p class="mut">Nothing logged yet.</p>','');
+ let m='<span></span>'+DN.map((n,d)=>`<span class="mh ${d==ti?'on':''}">${n}</span>`).join('');
+ for(let i=0;i<64;i++){m+=`<span class="ml">${i%4==3?tm(i).slice(0,2)+'h':''}</span>`;for(let d=0;d<7;d++){const v=data.s[d+'-'+i];m+=v&&cats[v[0]]?`<u style="background:${col(v[0])}"></u>`:'<u></u>'}}
+ h+=wcard('w-mp','Week map',W.pct+'% logged',`<div class="map">${m}</div>`,'');
+ return h+'</div>'}
 
 function vSetup(){let h=head('Setup','Appearance, hourglass, categories, account')+vTheme()+vHgSet()+vPlanSet();
  h+=`<div class="card"><div class="set mut" style="margin:0"><span></span><span>Name</span><span>XP</span><span>Focus</span></div>${cats.map((c,i)=>`<div class="set"><input type="color" class="cp" value="${col(i)}" data-ci="${i}" data-f="c" aria-label="Color for ${esc(c.n)}"><input type="text" value="${esc(c.n)}" data-ci="${i}" data-f="n"><input type="number" value="${c.xp}" data-ci="${i}" data-f="xp"><input type="checkbox" ${c.f?'checked':''} data-ci="${i}" data-f="f"></div>`).join('')}<p class="mut" style="margin-bottom:0">Tap a circle to change its color. The last row is your time leak category.</p><button class="btn g" data-act="rc">Reset colors</button></div>`;
