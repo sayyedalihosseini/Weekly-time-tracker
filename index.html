@@ -163,7 +163,8 @@ textarea{min-height:110px;resize:vertical}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.two:has(:only-child){grid-template-columns:1fr}
 .hrw{display:grid;grid-template-columns:1fr auto auto;gap:12px;width:100%;text-align:left;border:2px solid transparent;border-radius:14px;background:var(--bg);color:var(--tx);font:500 14px Lexend;padding:10px 12px;margin:4px 0;cursor:pointer}
 .hrw.on{border-color:var(--ac)}.hrw span+span{color:var(--mu);font-weight:400;font-size:13px}
-.nt,#act,#tq,[data-plan],#ptpl,.set input[type=text]{text-transform:uppercase}
+.nt,#act,#tq,[data-plan],#ptpl,.addin,#hn,#hin,#tn,.set input[type=text]{text-transform:uppercase}
+.addin::placeholder,#hin::placeholder,#hn::placeholder,#tn::placeholder{text-transform:none}
 .dl{margin-top:18px;padding-top:14px;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:14px;text-align:left;width:100%}
 .dlr{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:baseline}
 .dln{font-size:13px;font-weight:600;letter-spacing:.02em;white-space:nowrap}
@@ -186,6 +187,43 @@ textarea{min-height:110px;resize:vertical}
 .dc h3{white-space:nowrap}.dv{white-space:nowrap;color:var(--mu);font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
 @media(min-width:760px){.wgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;margin-top:12px}.wgrid .card{margin:0}.wgrid .chips{grid-column:1/-1;grid-template-columns:repeat(4,1fr);margin:0}.wgrid .wide{grid-column:1/-1}}
 @media(min-width:1180px){.wgrid{grid-template-columns:repeat(3,minmax(0,1fr))}.wgrid .yr{grid-column:span 2}.wgrid .dbd{grid-row:span 2}.wgrid .mp{grid-column:span 2}}
+.hab,.todo{padding-bottom:10px}
+.hct{font-size:14px;font-weight:700;color:var(--mu);font-variant-numeric:tabular-nums}.hct.all{color:var(--ac)}
+.hb,.td{display:grid;align-items:center;gap:10px;padding:7px 0}
+.hb{grid-template-columns:32px minmax(0,1fr) auto}.td{grid-template-columns:32px minmax(0,1fr)}
+.hb+.hb,.td+.td{border-top:1px solid color-mix(in srgb,var(--bd) 70%,transparent)}
+.hck,.tck{width:30px;height:30px;border-radius:50%;border:2.5px solid var(--ac);background:transparent;cursor:pointer;padding:0;position:relative;transition:background .15s,transform .15s}
+.tck{border-radius:10px;border-color:color-mix(in srgb,var(--ac) 70%,var(--mu))}
+.hck:active,.tck:active{transform:scale(.85)}
+.hb.on .hck,.td.dn .tck{background:var(--ac);border-color:var(--ac);animation:tpop .4s cubic-bezier(.34,1.56,.64,1)}
+.hb.on .hck::after,.td.dn .tck::after{content:"";position:absolute;left:8.5px;top:4px;width:7px;height:13px;border:solid var(--on);border-width:0 3px 3px 0;transform:rotate(45deg)}
+.hn,.tt{border:0;background:none;color:var(--tx);font:inherit;font-size:15px;font-weight:500;text-align:left;padding:2px 0;cursor:pointer;min-width:0;display:flex;flex-direction:column;align-items:flex-start}
+.hn span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tt span{overflow-wrap:anywhere}
+.hn small{color:var(--mu);font-size:12px;font-weight:400}
+.hb.on .hn span{color:var(--mu)}
+.td.dn .tt span{text-decoration:line-through;color:var(--mu)}
+.hw{display:flex;gap:4px}
+.hd{width:14px;height:14px;border-radius:50%;border:2px solid color-mix(in srgb,var(--ac) 50%,transparent);background:transparent;padding:0;cursor:pointer}
+.hd.f{background:var(--ac);border-color:var(--ac)}
+.due{font-style:normal;font-size:11px;font-weight:600;color:var(--mu);margin-top:2px}.due.t{color:var(--ac)}.due.o{color:#ef4444}
+.addin{border-style:dashed!important;margin:6px 0 4px!important;padding:11px 14px!important}
+.empty{color:var(--mu);font-size:14px;margin:8px 0}
+.dnh{border:0;background:none;color:var(--mu);font:inherit;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:12px 0 4px;cursor:pointer}
+.pill.on{background:var(--ac);color:var(--on)}
+.qk{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 12px}
+.qk button{display:flex;align-items:baseline;justify-content:space-between;border:0;border-radius:20px;background:var(--sf);color:var(--tx);font:inherit;font-size:14px;padding:10px 16px;cursor:pointer}
+.qk b{font-size:22px}.qk small{color:var(--mu);font-size:13px}
+@media(min-width:760px){.qk{display:none}.tabs .t-habits,.tabs .t-tasks{display:none}}
+@media(max-width:759px){.tabs button span{font-size:10px;letter-spacing:-.01em}}
+.hsl{grid-column:2/-1;display:flex;flex-direction:column;gap:2px;margin:-2px 0 2px}
+.hs{display:flex;align-items:center;gap:9px;border:0;background:none;color:var(--tx);font:inherit;font-size:14px;text-align:left;padding:5px 0;cursor:pointer}
+.hs i{flex:none;width:18px;height:18px;border-radius:6px;border:2px solid color-mix(in srgb,var(--ac) 65%,transparent);position:relative}
+.hs.on i{background:var(--ac);border-color:var(--ac)}
+.hs.on i::after{content:"";position:absolute;left:4px;top:0;width:5px;height:10px;border:solid var(--on);border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.hs.on span{color:var(--mu);text-decoration:line-through}
+.hir{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid color-mix(in srgb,var(--bd) 70%,transparent)}.hir span{flex:1;min-width:0}
+.hir .pill{padding:6px 11px}
 </style>
 </head>
 <body>
@@ -209,7 +247,7 @@ const LAT=s=>String(s).toUpperCase().replace(/[^\x20-\x7E\n\r\t\u00C0-\u024F\p{E
 function normData(){let ch=0;for(const k in data.s){const v=data.s[k];if(v&&v[1]){const n=LAT(v[1]);if(n!==v[1]){v[1]=n;ch=1}}}
  for(const k in data.p){const n=LAT(data.p[k]||'');if(n!==data.p[k]){data.p[k]=n;ch=1}}
  if(ch)save();let cc=0;cats.forEach(c=>{const n=LAT(c.n);if(n!==c.n){c.n=n;cc=1}});if(cc)saveCatsSoon()}
-const LATSEL='.nt,#act,#tq,#cn,#ptpl,[data-plan],input[data-f="n"]';
+const LATSEL='.nt,#act,#tq,#cn,#ptpl,.addin,#hn,#hin,#tn,[data-plan],input[data-f="n"]';
 document.addEventListener('input',e=>{const t=e.target;if(!t.matches||!t.matches(LATSEL))return;const v=t.value,n=LAT(v);
  if(n!==v){const p=t.selectionStart,d=v.length-n.length;t.value=n;try{t.setSelectionRange(Math.max(0,p-d),Math.max(0,p-d))}catch(x){}}},true);
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -303,6 +341,9 @@ function sub(){if(!sb||!user||ch)return;const f='user_id=eq.'+user.id;
   .on('postgres_changes',{event:'*',schema:'public',table:'slots',filter:f},p=>onRT('s',p))
   .on('postgres_changes',{event:'*',schema:'public',table:'plans',filter:f},p=>onRT('p',p))
   .on('postgres_changes',{event:'*',schema:'public',table:'settings',filter:f},p=>{if(p.new&&p.new.cats&&!ls('cd')){cats=p.new.cats;ls('cats',cats)}if(p.new&&typeof p.new.plan_tpl=='string'&&!ls('ptpd')){ptpl=p.new.plan_tpl;ls('ptpl',ptpl)}if(p.new&&Array.isArray(p.new.counters)&&!ls('ctd')){ctr=nc(p.new.counters);ls('ctr',ctr)}renderSoft()})
+  .on('postgres_changes',{event:'*',schema:'public',table:'habits',filter:f},p=>onRT2('habits',p))
+  .on('postgres_changes',{event:'*',schema:'public',table:'habit_days',filter:f},p=>onRT2('habit_days',p))
+  .on('postgres_changes',{event:'*',schema:'public',table:'todos',filter:f},p=>onRT2('todos',p))
   .subscribe(st=>{if(st=='SUBSCRIBED')flush().then(pull)})}
 let sct;function saveCatsSoon(){ls('cats',cats);ls('cd',1);clearTimeout(sct);sct=setTimeout(saveCats,600)}
 async function saveCats(){ls('cats',cats);ls('cd',1);if(sb&&user){const{error}=await sb.from('settings').upsert({user_id:user.id,cats,updated_at:new Date().toISOString()});if(!error)localStorage.removeItem('wtt:cd')}}
@@ -334,6 +375,99 @@ function applyTpl(){if(!ptpl.trim()||week!=monday())return;const t=iso(new Date(
 const vPlanSet=()=>`<div class="card"><h3>📋 Daily plan template</h3><p class="mut" style="margin:0 0 4px">This text fills the plan box at the start of each day, if the plan is empty. Leave it empty to turn this off.</p><textarea id="ptpl" rows="6" placeholder="1. MAIN GOAL&#10;2. SECOND GOAL&#10;3. MUST DO">${esc(ptpl)}</textarea></div>`;
 document.addEventListener('input',e=>{if(e.target.id=='ptpl'){ptpl=e.target.value;localStorage.removeItem('wtt:ptday');clearTimeout(ptT);ptT=setTimeout(savePtpl,600)}});
 let ptT;
+// ---- habits & to-do (one row per item, soft delete, synced like slots) ----
+const uid=()=>(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));
+const tday=()=>iso(new Date());
+let habits=ls('habits')||[],hdays=ls('hdays')||{},todos=ls('todos')||[],SHS=null,f2t,fl2=false,showDone=false;
+const liveH=()=>habits.filter(h=>!h.del).sort((a,b)=>a.pos-b.pos);
+function keep2(){ls('habits',habits);ls('hdays',hdays);ls('todos',todos)}
+function apply2(t,r){
+ if(t=='habit_days'){const k=r.habit_id+'|'+r.day;if(r.done)hdays[k]=true;else delete hdays[k];return}
+ const L=t=='habits'?habits:todos,i=L.findIndex(x=>x.id==r.id);if(i<0)L.push({...r});else L[i]={...L[i],...r}}
+function put2(t,r){apply2(t,r);const q=ls('q2')||{};q[t+'|'+(t=='habit_days'?r.habit_id+'|'+r.day:r.id)]=r;ls('q2',q);keep2();
+ if(sb&&user){setSync('wait');clearTimeout(f2t);f2t=setTimeout(flush2,500)}}
+async function flush2(){if(!sb||!user||fl2)return;const q=ls('q2')||{},ks=Object.keys(q);if(!ks.length)return;fl2=true;
+ const u=user.id,now=new Date().toISOString(),g={habits:[],habit_days:[],todos:[]};
+ ks.forEach(k=>g[k.split('|')[0]].push({...q[k],user_id:u,updated_at:now}));
+ try{for(const t in g)if(g[t].length){const{error}=await sb.from(t).upsert(g[t]);if(error)throw error}
+  const n=ls('q2')||{};ks.forEach(k=>{if(JSON.stringify(n[k])==JSON.stringify(q[k]))delete n[k]});ls('q2',n);fl2=false;
+  if(Object.keys(n).length)flush2();else if(!Object.keys(ls('q')||{}).length)setSync('ok')}
+ catch(e){fl2=false;lastErr=(e&&e.message)||String(e);setSync('err');setTimeout(flush2,15000)}}
+async function pull2(){if(!sb||!user)return;
+ const[a,b,c]=await Promise.all([sb.from('habits').select('id,name,pos,del,items'),sb.from('habit_days').select('habit_id,day,done').gte('day',addDays(tday(),-400)),sb.from('todos').select('id,text,due,done_at,pos,del,created_at')]);
+ if(a.error||b.error||c.error)return;
+ habits=a.data;todos=c.data;hdays={};b.data.forEach(r=>{if(r.done)hdays[r.habit_id+'|'+r.day]=true});
+ Object.entries(ls('q2')||{}).forEach(([k,v])=>apply2(k.split('|')[0],v)); // unsent local changes win
+ keep2();renderSoft()}
+function onRT2(t,p){const r=p.new;if(!r||!user||r.user_id!=user.id)return;
+ const k=t+'|'+(t=='habit_days'?r.habit_id+'|'+r.day:r.id);if((ls('q2')||{})[k])return;
+ const{user_id,updated_at,...row}=r;apply2(t,row);keep2();renderSoft()}
+
+// habits
+const hDone=(id,d)=>!!hdays[id+'|'+(d||tday())];
+const hItems=h=>(h&&Array.isArray(h.items))?h.items:[];
+function setHabit(id,d,v){const h=habits.find(x=>x.id==id);put2('habit_days',{habit_id:id,day:d,done:v});
+ hItems(h).forEach(it=>{const k=id+':'+it.id;if(!!hdays[k+'|'+d]!==v)put2('habit_days',{habit_id:k,day:d,done:v})})}
+function toggleSub(id,iid,d){const h=habits.find(x=>x.id==id),k=id+':'+iid;put2('habit_days',{habit_id:k,day:d,done:!hdays[k+'|'+d]});
+ const all=hItems(h).every(it=>hdays[id+':'+it.id+'|'+d]);if(all!==hDone(id,d))put2('habit_days',{habit_id:id,day:d,done:all})}
+function streak(id){let d=tday(),n=0;if(!hDone(id,d))d=addDays(d,-1);while(hDone(id,d)){n++;d=addDays(d,-1)}return n}
+function hStats(){const L=liveH();return{n:L.length,d:L.filter(h=>hDone(h.id)).length}}
+function habCard(){const L=liveH(),t=tday(),st=hStats();
+ const rows=L.map(h=>{const on=hDone(h.id),s=streak(h.id);
+  let dots='';for(let k=6;k>=1;k--){const d=addDays(t,-k);dots+=`<button class="hd ${hDone(h.id,d)?'f':''}" data-act="hday" data-id="${h.id}" data-d="${d}" title="${DN[(new Date(d+'T00:00').getDay()+6)%7]} ${fmt(d)}" aria-label="${fmt(d)}"></button>`}
+  const its=hItems(h),nd=its.filter(it=>hdays[h.id+':'+it.id+'|'+t]).length;
+  const sub=its.length&&!on?`<div class="hsl">${its.map(it=>`<button class="hs ${hdays[h.id+':'+it.id+'|'+t]?'on':''}" data-act="hsub" data-id="${h.id}" data-i="${it.id}"><i></i><span>${esc(it.n)}</span></button>`).join('')}</div>`:'';
+  return `<div class="hb ${on?'on':''}"><button class="hck" data-act="hday" data-id="${h.id}" data-d="${t}" aria-label="Done today"></button><button class="hn" data-act="hed" data-id="${h.id}"><span>${esc(h.name)}</span><small>${s?'🔥 '+s+(s==1?' day':' days'):'No streak yet'}${its.length?' · ☑ '+(on?its.length:nd)+'/'+its.length:''}</small></button><div class="hw">${dots}</div>${sub}</div>`}).join('');
+ return `<section class="card hab"><div class="row" style="padding-top:0"><h3 class="grow" style="margin:0">✅ Habits</h3>${st.n?`<span class="hct ${st.d==st.n?'all':''}">${st.d}/${st.n}</span>`:''}</div>
+${st.n?`<div class="bar" style="height:6px;margin:2px 0 6px"><span style="width:${st.n?st.d/st.n*100:0}%"></span></div>`:''}${rows||'<p class="empty">Add the habits you want to do every day.</p>'}
+<input class="addin" data-add="h" type="text" maxlength="40" placeholder="+ Add a habit, press Enter" enterkeyhint="enter" autocomplete="off"></section>`}
+function hEdit(id){const h=habits.find(x=>x.id==id);if(!h)return;let m=0;for(let k=0;k<30;k++)if(hDone(id,addDays(tday(),-k)))m++;
+ $('#sheet').innerHTML=`<div><div class="row"><h3 class="grow" style="margin:0">✅ Habit</h3><button class="pill" data-act="close">Close</button></div>
+<input id="hn" type="text" maxlength="40" value="${esc(h.name)}" autocomplete="off">
+<p class="mut" style="margin:14px 0 2px">Checklist (optional). The habit is done when every item is ticked.</p><div id="hie"></div>
+<input id="hin" type="text" maxlength="40" placeholder="+ Add a checklist item, press Enter" autocomplete="off"><p class="mut">Streak: ${streak(id)} days · done on ${m} of the last 30 days.</p>
+<div class="two"><button class="btn g" data-act="hmv" data-d="-1">↑ Move up</button><button class="btn g" data-act="hmv" data-d="1">↓ Move down</button></div>
+<button class="btn" data-act="hsave">Save</button><button class="btn g" data-act="hdel" style="margin-top:10px">Delete habit</button></div>`;
+ HI=hItems(h).map(x=>({...x}));hiPaint();
+ SHS=()=>{hiAdd();const n=LAT($('#hn').value).trim();if(n)put2('habits',{...strip(h),name:n,items:HI});closeSheet();render()};
+ $('#sheet').classList.add('open');$('#sheet').dataset.id=id}
+let HI=[];
+function hiPaint(){const e=$('#hie');if(e)e.innerHTML=HI.map((it,k)=>`<div class="hir"><span>${esc(it.n)}</span><button class="pill" data-act="hiup" data-k="${k}" aria-label="Move up">↑</button><button class="pill" data-act="hirm" data-k="${k}" aria-label="Remove">✕</button></div>`).join('')}
+function hiAdd(){const e=$('#hin');if(!e)return;const v=LAT(e.value).trim();if(!v)return;HI.push({id:uid().slice(0,8),n:v});e.value='';hiPaint();e.focus()}
+const strip=o=>{const{user_id,updated_at,...r}=o;return r};
+function hMove(id,d){const L=liveH(),i=L.findIndex(x=>x.id==id),j=i+d;if(i<0||j<0||j>=L.length)return;
+ L.forEach((h,k)=>{const p=k==i?j:k==j?i:k;if(h.pos!==p)put2('habits',{...strip(h),pos:p})});render()}
+
+// to-do
+const dueKey=(x,t)=>!x.due?'1':x.due<=t?'0'+x.due:'2'+x.due;
+function tLists(){const t=tday(),L=todos.filter(x=>!x.del);
+ return{open:L.filter(x=>!x.done_at).sort((a,b)=>{const ka=dueKey(a,t),kb=dueKey(b,t);return ka<kb?-1:ka>kb?1:a.pos-b.pos}),
+  done:L.filter(x=>x.done_at&&iso(new Date(x.done_at))==t).sort((a,b)=>a.done_at<b.done_at?1:-1)}}
+function dueTag(d){if(!d)return'';const t=tday(),y=d<t,tm=addDays(t,1);
+ const l=d==t?'Today':d==tm?'Tomorrow':(y?'Overdue · ':'')+DN[(new Date(d+'T00:00').getDay()+6)%7]+' '+fmt(d);
+ return `<em class="due ${y?'o':d==t?'t':''}">${l}</em>`}
+function tRow(x,dn){return `<div class="td ${dn?'dn':''}"><button class="tck" data-act="tck" data-id="${x.id}" aria-label="${dn?'Mark not done':'Mark done'}"></button><button class="tt" data-act="ted" data-id="${x.id}"><span>${esc(x.text)}</span>${dn?'':dueTag(x.due)}</button></div>`}
+function todoCard(){const{open,done}=tLists();
+ return `<section class="card todo"><div class="row" style="padding-top:0"><h3 class="grow" style="margin:0">📝 To-do</h3><span class="hct">${open.length} open</span></div>
+<input class="addin" data-add="t" type="text" maxlength="120" placeholder="+ Add a task, press Enter" enterkeyhint="enter" autocomplete="off">
+${open.map(x=>tRow(x,0)).join('')||'<p class="empty">Nothing open. Nice.</p>'}
+${done.length?`<button class="dnh" data-act="tdn">${showDone?'▾':'▸'} Done today (${done.length})</button>${showDone?done.map(x=>tRow(x,1)).join(''):''}`:''}</section>`}
+function tEdit(id){const x=todos.find(z=>z.id==id);if(!x)return;const t=tday();
+ $('#sheet').innerHTML=`<div><div class="row"><h3 class="grow" style="margin:0">📝 Task</h3><button class="pill" data-act="close">Close</button></div>
+<input id="tn" type="text" maxlength="120" value="${esc(x.text)}" autocomplete="off">
+<div class="row" style="flex-wrap:wrap;gap:8px;padding:12px 0 4px"><span class="mut" style="margin:0">Due</span>${[['Today',t],['Tomorrow',addDays(t,1)],['Next week',addDays(t,7)],['No date','']].map(([l,v])=>`<button class="pill ${(x.due||'')==v?'on':''}" data-act="tdue" data-v="${v}">${l}</button>`).join('')}</div>
+<input id="tdt" type="date" value="${x.due||''}">
+<button class="btn" data-act="tsave">Save</button><button class="btn g" data-act="tdel" style="margin-top:10px">Delete task</button></div>`;
+ SHS=()=>{const n=LAT($('#tn').value).trim();if(n)put2('todos',{...strip(x),text:n,due:$('#tdt').value||null});closeSheet();render()};
+ $('#sheet').classList.add('open');$('#sheet').dataset.id=id}
+
+function addItem(kind,v){v=LAT(v).trim();if(!v)return;
+ if(kind=='h')put2('habits',{id:uid(),name:v,pos:liveH().length?Math.max(...liveH().map(h=>h.pos))+1:0,del:false});
+ else put2('todos',{id:uid(),text:v,due:null,done_at:null,pos:-Date.now(),del:false,created_at:new Date().toISOString()});
+ render();const n=document.querySelector('.addin[data-add="'+kind+'"]');if(n)n.focus()}
+const vHabits=()=>{const s=hStats();return head('Habits',s.n?`${s.d} of ${s.n} done today`:'Daily habits')+habCard()};
+const vTasks=()=>{const{open,done}=tLists();return head('To-do',`${open.length} open · ${done.length} done today`)+todoCard()};
+function quickRow(){const s=hStats(),o=tLists().open.length;return `<div class="qk"><button data-act="tab" data-t="habits"><b>${s.n?s.d+'/'+s.n:'+'}</b><small>Habits</small></button><button data-act="tab" data-t="tasks"><b>${o}</b><small>To-do</small></button></div>`}
 async function loadWeek(){data=ls('w2:'+week)||{s:{},p:{}};base[week]=clone(data);render();loadCarry();await flush();await pull();applyTpl();prefetchPrev()}
 async function boot(){
  if(sb&&user){
@@ -345,7 +479,7 @@ async function boot(){
     Object.entries(d.s||{}).forEach(([key,v])=>{const[dd,i]=key.split('-').map(Number);q['s|'+w+'|'+key]={k:'s',w,d:dd,i,c:v[0],n:v[1]||''}});
     Object.entries(d.p||{}).forEach(([dd,t])=>{if(t)q['p|'+w+'|'+dd]={k:'p',w,d:+dd,t}})}
    ls('q',q);ls('uid',user.id)}
-  sub();pushReports()}
+  sub();pushReports();flush2().then(pull2)}
  loadWeek()}
 function localCarry(){let t=0;
  for(let n=0;n<localStorage.length;n++){const k=localStorage.key(n);if(!k||!k.startsWith('wtt:w2:')||k.slice(7)>=week)continue;
@@ -414,11 +548,11 @@ function vTrio(){lastTrio=trioKey();const c=nowSlot(),dd=week==monday()?data:(ls
   const v=dd.s[dy+'-'+i],k=v&&cats[v[0]];
   return `<button class="trow ${k?'has':''} ${tg=='Now'?'now':''}" data-act="tslot" data-i="${i}" ${k?`style="--c:${col(v[0])}"`:''}><span class="ttag">${tg}</span><span class="ttm">${tm(i)}</span><span class="tbd">${k?`<b>${esc(k.n)}</b>`:'<b class="ph">Tap to log</b>'}${v&&v[1]?`<em>${esc(v[1])}</em>`:''}</span></button>`}).join('')+'</div>'}
 function nowSync(){if(week==monday()&&day==todayIdx())return;week=monday();day=todayIdx();data=ls('w2:'+week)||{s:{},p:{}};base[week]=clone(data);pull()}
-const vGlassPage=()=>head('Hourglass',hg.every==60?'Flips every hour, on the hour':'Flips every 15 minutes, on the clock')+hgCard(true,true)+vTrio()+'<p class="mut hgnote" style="text-align:center">Change the interval in Setup.</p>';
+const vGlassPage=()=>head('Hourglass',hg.every==60?'Flips every hour, on the hour':'Flips every 15 minutes, on the clock')+quickRow()+hgCard(true,true)+vTrio()+'<p class="mut hgnote" style="text-align:center">Change the interval in Setup.</p>';
 const vHgSet=()=>`<div class="card"><h3>⏳ Hourglass</h3><div class="seg">${[[60,'Every hour'],[15,'Every 15 min']].map(([m,l])=>`<button class="${hg.every==m?'on':''}" data-act="hgp" data-m="${m}">${l}</button>`).join('')}</div><p class="mut" style="margin:10px 0 0">It follows the clock, not your activity, and flips by itself. Saved on this device.</p></div>`;
 hgTick(true);
 
-const ICON={today:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',week:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>',glass:'<svg viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3v3c0 3 5 4 5 6s-5 3-5 6v3M17 3v3c0 3-5 4-5 6s5 3 5 6v3"/></svg>',setup:'<svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>'};
+const ICON={today:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',week:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>',glass:'<svg viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3v3c0 3 5 4 5 6s-5 3-5 6v3M17 3v3c0 3-5 4-5 6s5 3 5 6v3"/></svg>',setup:'<svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>',habits:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16.2 9.6"/></svg>',tasks:'<svg viewBox="0 0 24 24"><path d="M11 6h9M11 12h9M11 18h9M4 6l1.3 1.3L8 4.6M4 12l1.3 1.3L8 10.6"/><circle cx="5.5" cy="18" r="1.3"/></svg>'};
 const head=(t,sub,nav)=>`<header><div><h1>${t}<span class="sd ${syncSt}" data-act="sd" title="Sync status"></span></h1><div class="mut" style="margin:0">${sub}</div></div>${nav?`<div class="nav"><button class="rb" data-act="prev" aria-label="Previous week">‹</button><button class="rb" data-act="next" aria-label="Next week">›</button></div>`:''}</header>`;
 const chip=(l,v,i)=>`<div class="chip"><small>${l}</small><b>${v}</b><i>${i}</i></div>`;
 const range=()=>fmt(week)+' – '+fmt(addDays(week,6));
@@ -437,7 +571,7 @@ function vToday(){const s=dayStats(day),pct=Math.round(s.n/64*100),cur=week==mon
    L+=`<div data-act="slot" data-i="${i}" class="slot ${c?'has':''} ${i==cur?'cur':''} ${i===fs?'fs':''}" ${c?`style="--c:${col(v[0])}"`:''}><span class="t ${i%4==3?'b':''}">${tm(i)}</span><button class="cb" data-act="slot" data-i="${i}"><span class="cn ${c?'':'ph'}">${c?esc(c.n):'Category'}</span></button><input class="nt" type="text" maxlength="80" data-n="${i}" tabindex="-1" placeholder="Note" value="${v?esc(v[1]||''):''}"></div>`}
   L+='</div>'}
  const plan=`<section class="card plan ${planShut?'shut':''}"><div class="row"><h3 class="grow" style="margin:0">📋 Plan for today</h3><button class="pill pp" data-act="paste">Paste</button><button class="pill pt" data-act="pt">${planShut?'Show':'Hide'}</button></div><div class="pb"><textarea data-plan placeholder="Paste or write your plan for ${DN[day]}…">${esc(data.p[day]||'')}</textarea></div></section>`;
- h+=`<div class="dgrid"><aside>${plan}<div class="an"><div class="pieL">${charts('pie')}</div>${charts('rest')}</div></aside><main><div class="slots">${L}</div><button class="btn" data-act="exp">📤 Day report</button></main><aside class="hgcol">${hgCard()}${charts('pie')}</aside></div><button class="fab" data-act="an">📈 Day analysis</button>`;
+ h+=`<div class="dgrid"><aside>${todoCard()}${habCard()}${plan}<div class="an"><div class="pieL">${charts('pie')}</div>${charts('rest')}</div></aside><main><div class="slots">${L}</div><button class="btn" data-act="exp">📤 Day report</button></main><aside class="hgcol">${hgCard()}${charts('pie')}</aside></div><button class="fab" data-act="an">📈 Day analysis</button>`;
  return h}
 
 function dotsCard(t,right,total,done,cur,foot){let d='';for(let i=0;i<total;i++)d+=`<i class="${i<done?'f':i==cur?'f c':''}"></i>`;
@@ -474,19 +608,21 @@ function vSetup(){let h=head('Setup','Appearance, hourglass, categories, account
 function vAuth(){return `<h1 style="margin-top:40px">Time Log</h1><p class="mut">Sign in to sync your weeks across devices.</p><div class="card"><input id="em" type="email" placeholder="Email" autocomplete="email"><input id="pw" type="password" placeholder="Password" autocomplete="current-password"><div class="err" id="msg"></div><button class="btn" data-act="in">Sign in</button><button class="btn g" data-act="up">Create account</button></div><button class="btn g" data-act="off">Use without account</button>`}
 
 const desk=()=>matchMedia('(min-width:1180px)').matches;
-const TABS=[['today','Today'],['week','Week'],['glass','Hourglass'],['setup','Setup']];
+const TABS=[['today','Today'],['habits','Habits'],['tasks','To-do'],['week','Week'],['glass','Hourglass'],['setup','Setup']];
+const phone=()=>matchMedia('(max-width:759px)').matches;
 function buildNav(){$('#nav').innerHTML='<i class="ind"></i>'+TABS.map(([t,l])=>`<button data-act="tab" data-t="${t}" class="t-${t}">${ICON[t]}<span>${l}</span></button>`).join('')}
 function syncNav(){const nav=$('#nav');if(!nav)return;
  nav.style.display=(sb&&!user&&!offline)?'none':'';
- const vis=TABS.map(x=>x[0]).filter(t=>!(t=='glass'&&desk()));
+ const vis=TABS.map(x=>x[0]).filter(t=>!(t=='glass'&&desk())&&!((t=='habits'||t=='tasks')&&!phone()));
  nav.style.setProperty('--n',vis.length);nav.style.setProperty('--i',Math.max(0,vis.indexOf(tab)));
  nav.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t==tab))}
 function render(){normData();
  if(tab=='glass'&&desk())tab='today';
+ if((tab=='habits'||tab=='tasks')&&!phone())tab='today';
  syncNav();
  if(sb&&!user&&!offline){$('#app').innerHTML='<div class="narrow">'+vAuth()+'</div>';return}
  const y=scrollY,os=$('.slots'),osk=week+'|'+day;if(os&&sKey===osk)sST=os.scrollTop;
- $('#app').innerHTML=(b=>tab=='today'||tab=='week'?b:`<div class="narrow">${b}</div>`)(({today:vToday,week:vWeek,glass:vGlassPage,setup:vSetup})[tab]());
+ $('#app').innerHTML=(b=>tab=='today'||tab=='week'?b:`<div class="narrow">${b}</div>`)(({today:vToday,week:vWeek,glass:vGlassPage,setup:vSetup,habits:vHabits,tasks:vTasks})[tab]());
  document.querySelectorAll('textarea[data-plan]').forEach(autoh);
  const ns=$('.slots');if(ns){setSo();if(sKey===osk&&sST!==null)ns.scrollTop=sST;else{const c=ns.querySelector('.slot.cur');ns.scrollTop=c?Math.max(0,c.offsetTop-ns.offsetTop-ns.clientHeight/3):0}sKey=osk;sST=ns.scrollTop}
  hgTick();
@@ -682,7 +818,7 @@ function openSheet(i){sel=i;fs=i;const v=data.s[day+'-'+i],pv=prevOf(i),can=pv&&
  $('#sheet').innerHTML=`<div><h3 style="margin:0">${DN[day]}, ${tm(i)}</h3><p class="mut" style="margin:2px 0">What did you do in the 15 minutes before?</p><input id="tq" class="ta" type="text" placeholder="Type a category name…" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="cg">${cats.map((c,k)=>`<button tabindex="-1" data-act="cat" data-i="${k}" class="${k===selCat?'on':''}"><span class="dot" style="background:${col(k)}"></span>${esc(c.n)}</button>`).join('')}</div><input id="act" type="text" placeholder="Note (optional)" value="${esc(v?v[1]||'':'')}"><select id="fill">${[0,1,2,3,4,5,6,7].map(n=>`<option value="${n}">${n?'Also fill the next '+n+' slot'+(n>1?'s':''):'This slot only'}</option>`).join('')}</select><button class="btn" data-act="ok">Save</button><button class="btn g" data-act="same" ${can?'':'disabled'}>Same as before${can?' ('+esc(cats[pv[0]].n)+')':''}</button><button class="btn g" data-act="clr">Clear</button><p class="mut kb">Enter saves · Esc closes · Tab next field · ↑↓ pick category</p></div>`;
  $('#sheet').classList.add('open');
  if(matchMedia('(hover:hover) and (pointer:fine)').matches)$('#tq').focus()}
-const closeSheet=()=>{CS=null;$('#sheet').classList.remove('open')};
+const closeSheet=()=>{CS=null;SHS=null;$('#sheet').classList.remove('open')};
 
 async function auth(k){const email=$('#em').value.trim(),password=$('#pw').value;
  if(!email||password.length<6){$('#msg').textContent='Enter your email and a password (at least 6 characters).';return}
@@ -720,6 +856,18 @@ document.addEventListener('click',async e=>{
   toast({loc:'Local only: not signed in. Data stays on this device.',ok:'Synced'+w,wait:'Sending changes…'+w,err:'Sync error: '+lastErr+hint+w}[syncSt]||syncSt,8000)}
  else if(a=='pt'){planShut=!planShut;render()}
  else if(a=='an'){$('#sheet').innerHTML=`<div><div class="row"><h3 class="grow" style="margin:0">📈 Day analysis</h3><button class="pill" data-act="close">Close</button></div>${charts()}</div>`;$('#sheet').classList.add('open')}
+ else if(a=='hday'){setHabit(b.dataset.id,b.dataset.d,!hDone(b.dataset.id,b.dataset.d));render()}
+ else if(a=='hed')hEdit(b.dataset.id)
+ else if(a=='hsub'){toggleSub(b.dataset.id,b.dataset.i,tday());render()}
+ else if(a=='hirm'){HI.splice(+b.dataset.k,1);hiPaint()}
+ else if(a=='hiup'){const k=+b.dataset.k;if(k>0){[HI[k-1],HI[k]]=[HI[k],HI[k-1]];hiPaint()}}
+ else if(a=='hsave'||a=='tsave'){if(SHS)SHS()}
+ else if(a=='hmv'){const id=$('#sheet').dataset.id;closeSheet();hMove(id,+b.dataset.d)}
+ else if(a=='hdel'||a=='tdel'){if(!b.dataset.sure){b.dataset.sure=1;b.textContent='Tap again to delete';return}const id=$('#sheet').dataset.id,L=a=='hdel'?habits:todos,x=L.find(z=>z.id==id);if(x)put2(a=='hdel'?'habits':'todos',{...strip(x),del:true});closeSheet();render()}
+ else if(a=='tck'){const x=todos.find(z=>z.id==b.dataset.id);if(x){put2('todos',{...strip(x),done_at:x.done_at?null:new Date().toISOString()});render()}}
+ else if(a=='ted')tEdit(b.dataset.id)
+ else if(a=='tdue'){$('#tdt').value=b.dataset.v;document.querySelectorAll('[data-act=tdue]').forEach(z=>z.classList.toggle('on',z===b))}
+ else if(a=='tdn'){showDone=!showDone;render()}
  else if(a=='ctr')ctrSheet(+b.dataset.i)
  else if(a=='cmode'){CM=b.dataset.m;document.querySelectorAll('[data-act=cmode]').forEach(x=>x.classList.toggle('on',x.dataset.m==CM))}
  else if(a=='csave')ctrSave()
@@ -737,9 +885,11 @@ document.addEventListener('keydown',e=>{
  const t=e.target,tag=t.tagName;
  if($('#sheet').classList.contains('open')){
   if(e.key=='Escape'){e.preventDefault();closeSheet();return}
-  if(e.key=='Enter'&&(tag=='INPUT'||tag=='SELECT')){e.preventDefault();CS!==null?ctrSave():doSave();return}
+  if(e.key=='Enter'&&t.id=='hin'){e.preventDefault();hiAdd();return}
+  if(e.key=='Enter'&&(tag=='INPUT'||tag=='SELECT')){e.preventDefault();SHS?SHS():CS!==null?ctrSave():doSave();return}
   if(t.id=='tq'&&(e.key=='ArrowDown'||e.key=='ArrowUp')){e.preventDefault();stepCat(e.key=='ArrowDown'?1:-1)}
   return}
+ if(e.key=='Enter'&&t.classList&&t.classList.contains('addin')){e.preventDefault();addItem(t.dataset.add,t.value);return}
  if(tab!='today'||!document.querySelector('.slot')||e.metaKey||e.ctrlKey||e.altKey)return;
  if(tag=='INPUT'||tag=='TEXTAREA'||tag=='SELECT'){if(e.key=='Escape'||(e.key=='Enter'&&t.classList.contains('nt')))t.blur();return}
  const mob=matchMedia('(max-width:759px)').matches,mv={ArrowDown:mob?4:1,ArrowUp:mob?-4:-1,ArrowRight:mob?1:0,ArrowLeft:mob?-1:0}[e.key];
@@ -756,11 +906,12 @@ document.addEventListener('keydown',e=>{
  buildNav();syncNav();hgReady=true;pruneReports();
  setInterval(()=>hgTick(),1000);
  matchMedia('(min-width:1180px)').addEventListener('change',()=>render());
+ matchMedia('(max-width:759px)').addEventListener('change',()=>render());
  {let ly=scrollY;addEventListener('scroll',()=>{const y=scrollY,d=y-ly;if(Math.abs(d)<6)return;ly=y;$('#nav').classList.toggle('mini',y>80&&d>0)},{passive:true})}
  let cm=monday();
  const wake=()=>{if(document.hidden)return;
   if(monday()!=cm){const old=cm;cm=monday();if(week==old){week=cm;day=todayIdx();loadWeek();return}}
-  hgTick();pushReports();flush().then(pull).then(applyTpl)};
+  hgTick();pushReports();flush().then(pull).then(applyTpl);flush2().then(pull2)};
  document.addEventListener('visibilitychange',wake);addEventListener('online',wake);addEventListener('focus',wake);
  if(sb&&!user&&!offline)render();else boot();
 })();
