@@ -280,6 +280,12 @@ button.pit{cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:now
 .ptx{margin-top:6px!important;padding:10px 12px!important;font-size:14px!important}
 .td[draggable=true]{cursor:grab}
 @media(max-width:759px){.pit,.pin,.ptx{font-size:16px!important}}
+*{scrollbar-width:thin;scrollbar-color:transparent transparent}
+.sc{scrollbar-color:color-mix(in srgb,var(--mu) 55%,transparent) transparent}
+::-webkit-scrollbar{width:8px;height:8px;background:transparent}
+::-webkit-scrollbar-thumb{background:transparent;border-radius:8px}
+.sc::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--mu) 55%,transparent)}
+body.noxp .set>input[data-f="xp"],body.noxp .set.mut>span:nth-child(3){visibility:hidden}
 </style>
 </head>
 <body>
@@ -303,6 +309,8 @@ const LAT=s=>String(s).toUpperCase().replace(/[^\x20-\x7E\n\r\t\u00C0-\u024F\p{E
 function normData(){let ch=0;for(const k in data.s){const v=data.s[k];if(v&&v[1]){const n=LAT(v[1]);if(n!==v[1]){v[1]=n;ch=1}}}
  for(const k in data.p){if(typeof isP=='function'&&isP(data.p[k]))continue;const n=LAT(data.p[k]||'');if(n!==data.p[k]){data.p[k]=n;ch=1}}
  if(ch)save();let cc=0;cats.forEach(c=>{const n=LAT(c.n);if(n!==c.n){c.n=n;cc=1}});if(cc)saveCatsSoon()}
+document.body.classList.toggle('noxp',!!ls('noxp'));
+(()=>{const T=new Map();addEventListener('scroll',e=>{const el=e.target===document?document.documentElement:e.target;if(!el.classList)return;el.classList.add('sc');clearTimeout(T.get(el));T.set(el,setTimeout(()=>el.classList.remove('sc'),1000))},true)})();
 const LATSEL='.nt,#act,#tq,#cn,#ptpl,.pit,.pin,.ptx,#pimpt,.addin,#hn,#hin,#tn,[data-plan],input[data-f="n"]';
 document.addEventListener('input',e=>{const t=e.target;if(!t.matches||!t.matches(LATSEL))return;const v=t.value,n=LAT(v);
  if(n!==v){const p=t.selectionStart,d=v.length-n.length;t.value=n;try{t.setSelectionRange(Math.max(0,p-d),Math.max(0,p-d))}catch(x){}}},true);
@@ -716,9 +724,9 @@ const autoh=t=>{t.style.height='auto';if(t.scrollHeight)t.style.height=t.scrollH
 addEventListener('resize',()=>document.querySelectorAll('textarea[data-plan]').forEach(autoh));
 function vToday(){const s=dayStats(day),pct=Math.round(s.n/64*100),cur=week==monday()&&day==todayIdx()?curSlot():-1;
  let h=head('Today',DN[day]+' '+fmt(addDays(week,day))+' · week of '+fmt(week),1);
- h+=`<div class="chips tc">${chip('XP today',s.xp,'')}${ctrCard()}</div>`;
+ h+=`<div class="chips tc">${noXP?'':chip('XP today',s.xp,'')}${ctrCard()}</div>`;
  h+=`<div class="days">${DN.map((n,i)=>`<button class="${i==day?'on':''}" data-act="day" data-i="${i}">${n}</button>`).join('')}</div>`;
- h+=`<div class="bar"><span style="width:${pct}%"></span></div><p class="mut">${s.n}/64 slots logged, ${pct}%. ${verdict(s.xp)}</p>`;
+ h+=`<p class="mut">${s.n}/64 slots logged, ${pct}%.${noXP?'':' '+verdict(s.xp)}</p>`;
  h+='<p class="mut kb" style="margin:-6px 0 10px">Keys: ↑↓ move · Enter log · S same as before · Del clear · E report</p>';let L='';
  for(let g=0;g<16;g++){L+='<div class="hour">';
   for(let i=g*4;i<g*4+4;i++){const v=data.s[day+'-'+i],c=v&&cats[v[0]];
@@ -763,8 +771,8 @@ function vWeek(){const W=weekStats(),tot=Math.max(0,carry+W.t.xp),lvl=Math.floor
  const st=W.pct>=85?'Excellent tracking':W.pct>=60?'Good, keep the chain going':W.pct>=30?'Warming up':'Getting started';
  const lt=W.t.n?Math.round(W.t.waste*4/W.t.n*100):0,ti=week==monday()?todayIdx():-1;
  let h=head('Week',range(),1)+'<div class="wgrid">';
- h+=`<div class="chips">${chip('XP this week',W.t.xp,'⚡')}${chip('Level','LV '+lvl,'🏆')}${chip('Focus',W.t.foc.toFixed(1)+' h','🎯')}${chip('Best streak',W.streak+' d','🔥')}</div>`+weekRepCard();
- h+=wcard('w-lv','Level progress',`LV ${lvl} → ${lvl+1}`,`<div class="bar"><span style="width:${into/5}%"></span></div>`,`${500-into} XP to go · ${tot} XP all-time`);
+ h+=`<div class="chips">${noXP?chip('Logged',W.pct+'%','📝')+chip('Time leak',W.t.waste.toFixed(1)+' h','🗑️'):chip('XP this week',W.t.xp,'⚡')+chip('Level','LV '+lvl,'🏆')}${chip('Focus',W.t.foc.toFixed(1)+' h','🎯')}${chip('Best streak',W.streak+' d','🔥')}</div>`+weekRepCard();
+ if(!noXP)h+=wcard('w-lv','Level progress',`LV ${lvl} → ${lvl+1}`,`<div class="bar"><span style="width:${into/5}%"></span></div>`,`${500-into} XP to go · ${tot} XP all-time`);
  h+=wcard('w-lg','Week logged',W.pct+'%',`<div class="bar"><span style="width:${W.pct}%"></span></div>`,`${st} · ${W.t.n}/448 slots · best day ${W.t.xp?DN[bd]:'–'} · leak ${W.t.waste.toFixed(1)} h (${lt}%)`);
  h+=timeCards();
  const L=cats.map((c,i)=>[i,W.t.h[i]]).filter(x=>x[1]).sort((a,b)=>b[1]-a[1]),mx=Math.max(.25,...W.t.h),T=W.t.n/4||1;
@@ -774,7 +782,8 @@ function vWeek(){const W=weekStats(),tot=Math.max(0,carry+W.t.xp),lvl=Math.floor
  h+=wcard('w-mp','Week map',W.pct+'% logged',`<div class="map">${m}</div>`,'');
  return h+'</div>'}
 
-function vSetup(){let h=head('Setup','Appearance, hourglass, categories, account')+vTheme()+vHgSet();
+let noXP=!!ls('noxp');
+function vSetup(){let h=head('Setup','Appearance, hourglass, categories, account')+vTheme()+vHgSet()+`<div class="card"><h3>⚡ XP and levels</h3><p class="mut" style="margin:0 0 10px">Hide all XP, level and score items in the app.</p><div class="seg"><button data-act="noxp" data-v="0" class="${noXP?'':'on'}">Show</button><button data-act="noxp" data-v="1" class="${noXP?'on':''}">Hide</button></div></div>`;
  h+=`<div class="card"><div class="set mut" style="margin:0"><span></span><span>Name</span><span>XP</span><span>Focus</span></div>${cats.map((c,i)=>`<div class="set"><input type="color" class="cp" value="${col(i)}" data-ci="${i}" data-f="c" aria-label="Color for ${esc(c.n)}"><input type="text" value="${esc(c.n)}" data-ci="${i}" data-f="n"><input type="number" value="${c.xp}" data-ci="${i}" data-f="xp"><input type="checkbox" ${c.f?'checked':''} data-ci="${i}" data-f="f"></div>`).join('')}<p class="mut" style="margin-bottom:0">Tap a circle to change its color. The last row is your time leak category.</p><button class="btn g" data-act="rc">Reset colors</button></div>`;
  h+=`<div class="card"><h3>Account</h3>`+(sb?(user?`<p class="mut">Signed in as ${esc(user.email)}. Data syncs across your devices.</p><button class="btn g" data-act="out">Sign out</button>`:`<p class="mut">Local mode. Sign in to sync.</p><button class="btn" data-act="signin">Sign in</button>`):`<p class="mut">Local mode. Add your Supabase keys in index.html to sync devices.</p>`)+`</div>`;
  return h}
@@ -1050,6 +1059,7 @@ document.addEventListener('click',async e=>{
  else if(a=='pimpok'){const v=$('#pimpt').value;if(v.trim()){setP(parsePlanText(v));closeSheet();render();toast('Plan imported')}}
  else if(a=='wrc'){const t=weekReport(b.dataset.w);if(t)copyText(t).then(ok=>toast(ok===false?'Copy failed':'Week report copied'))}
  else if(a=='wrt'){wrOpen=!wrOpen;render()}
+ else if(a=='noxp'){noXP=b.dataset.v=='1';noXP?ls('noxp',1):localStorage.removeItem('wtt:noxp');document.body.classList.toggle('noxp',noXP);render()}
  else if(a=='ctr')ctrSheet(+b.dataset.i)
  else if(a=='cmode'){CM=b.dataset.m;document.querySelectorAll('[data-act=cmode]').forEach(x=>x.classList.toggle('on',x.dataset.m==CM))}
  else if(a=='csave')ctrSave()
