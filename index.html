@@ -441,7 +441,7 @@ document.addEventListener('input',e=>{if(e.target.id=='ptpl'){ptpl=e.target.valu
 let ptT;
 // ---- habits & to-do (one row per item, soft delete, synced like slots) ----
 const uid=()=>(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));
-const tday=()=>iso(new Date());
+const DAYH=3,dOf=t=>iso(new Date(new Date(t).getTime()-DAYH*3600e3)),tday=()=>dOf(Date.now()); // habit/to-do day ends at 03:00
 let habits=ls('habits')||[],hdays=ls('hdays')||{},todos=ls('todos')||[],SHS=null,f2t,fl2=false,showDone=false;
 const liveH=()=>habits.filter(h=>!h.del).sort((a,b)=>a.pos-b.pos);
 function keep2(){ls('habits',habits);ls('hdays',hdays);ls('todos',todos)}
@@ -516,7 +516,7 @@ function hMove(id,d){const L=liveH(),i=L.findIndex(x=>x.id==id),j=i+d;if(i<0||j<
 const dueKey=(x,t)=>!x.due?'1':x.due<=t?'0'+x.due:'2'+x.due;
 function tLists(){const t=tday(),L=todos.filter(x=>!x.del);
  return{open:L.filter(x=>!x.done_at).sort((a,b)=>{const ka=dueKey(a,t),kb=dueKey(b,t);return ka<kb?-1:ka>kb?1:a.pos-b.pos}),
-  done:L.filter(x=>x.done_at&&iso(new Date(x.done_at))==t).sort((a,b)=>a.done_at<b.done_at?1:-1)}}
+  done:L.filter(x=>x.done_at&&dOf(x.done_at)==t).sort((a,b)=>a.done_at<b.done_at?1:-1)}}
 function dueTag(d){if(!d)return'';const t=tday(),y=d<t,tm=addDays(t,1);
  const l=d==t?'Today':d==tm?'Tomorrow':(y?'Overdue · ':'')+DN[(new Date(d+'T00:00').getDay()+6)%7]+' '+fmt(d);
  return `<em class="due ${y?'o':d==t?'t':''}">${l}</em>`}
@@ -755,7 +755,7 @@ function weekReport(w){const dd=weekData(w);if(!dd)return null;const days=[0,1,2
  cats.map((c,i)=>[i,h[i]]).filter(x=>x[1]).sort((a,b)=>b[1]-a[1]).forEach(([i,v])=>o.push(`${EM[i]||'•'} ${cats[i].n}: ${dm(v*15)} · ${P(v,n)}%`));
  o.push(`Σ ${dm(n*15)}`,'','📆 Day by day');days.forEach((c,i)=>o.push(`${DN[i]}: ${dm(c.n*15)} logged · focus ${dm(c.foc*15)}`));
  const H=liveH();if(H.length){o.push('','✅ Habits');H.forEach(x=>{let k=0;for(let d=0;d<7;d++)if(hDone(x.id,addDays(w,d)))k++;o.push(`${k==7?'🟢':k>=4?'🟡':'🔴'} ${x.name}: ${k}/7`)})}
- const T=todos.filter(x=>!x.del&&x.done_at&&iso(new Date(x.done_at))>=w&&iso(new Date(x.done_at))<=we);
+ const T=todos.filter(x=>!x.del&&x.done_at&&dOf(x.done_at)>=w&&dOf(x.done_at)<=we);
  if(T.length){o.push('',`📝 Tasks done: ${T.length}`);T.forEach(x=>o.push('🟢 '+x.text))}
  const st=[0,0,0,0];for(let d=0;d<7;d++){const r=dd.p&&dd.p[d];if(!isP(r))continue;try{const Q=fixP(JSON.parse(r.slice(PFX.length)));SECS.forEach(([k])=>Q.sec[k].forEach(it=>st[itStat(it)]++))}catch(e){}}
  if(st.some(Boolean))o.push('',`📋 Plan items: ${st[2]} done · ${st[3]} failed · ${st[1]} in progress · ${st[0]} not started`);
